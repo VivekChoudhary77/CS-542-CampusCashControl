@@ -73,13 +73,18 @@ export default {
     handleLogin() {
       this.validateForm();
       if (!this.emailError && !this.passwordError) {
-        // Proceed with login
-        alert("Login successful! Implement API call here.");
+        // Dummy credential check
+        if (this.email === "test@example.com" && this.password === "password123") {
+          alert("Login successful!");
+          // Use Vue router to navigate to the dashboard component
+          this.$router.push("/dashboard");
+        } else {
+          alert("Invalid credentials. Try: test@example.com / password123");
+        }
       }
     },
     forgotPassword() {
-      // Placeholder for forgotten password logic (e.g., email reset link)
-      alert("Forgot password clicked! Implement reset logic.");
+      alert("Forgot password clicked! Implement reset logic later.");
     },
   },
 };

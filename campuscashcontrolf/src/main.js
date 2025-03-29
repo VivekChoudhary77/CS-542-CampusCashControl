@@ -1,15 +1,10 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
-
-// Import Bootstrap CSS
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap"; // Ensure Bootstrap JS is included
+import "@fortawesome/fontawesome-free/css/all.min.css"; // Import FontAwesome for icons
 
 const app = createApp(App);
-
-// Use Vue Router
 app.use(router);
-
-// Mount the application
 app.mount("#app");
-
