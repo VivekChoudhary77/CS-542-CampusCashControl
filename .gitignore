@@ -1,0 +1,28 @@
+# OS generated files #
+.DS_Store
+Thumbs.db
+
+# Backend (Django) #
+campuscashcontrolb/api/__pycache__/
+campuscashcontrolb/*.pyc
+campuscashcontrolb/*.sqlite3
+campuscashcontrolb/myvenv/  # Or your virtual environment name
+campuscashcontrolb/*.log
+campuscashcontrolb/local_settings.py
+campuscashcontrolb/*.env
+
+# Frontend (Vue.js) #
+campuscashcontrolf/node_modules/
+campuscashcontrolf/dist/
+campuscashcontrolf/.env.local
+campuscashcontrolf/.env.*
+campuscashcontrolf/package-lock.json
+campuscashcontrolf/package.json
+
+# IDE Specific #
+.idea/
+.vscode/
+
+# Other #
+*.swp
+*.bak
