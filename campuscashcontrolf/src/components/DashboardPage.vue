@@ -3,7 +3,12 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">CampusCashControl</a>
+        <!-- <router-link class="navbar-brand" to="/dashboard">CampusCashControl</router-link> -->
+         <!-- Navbar Brand with Image -->
+      <router-link class="navbar-brand" to="/dashboard">
+        <img src="@/assets/CCC Dashboard Logo.png" alt="CampusCashControl" class="navbar-logo" />
+      </router-link>
+
 
         <!-- Navbar Links -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -18,9 +23,8 @@
           </li>
         </ul>
         <!-- User Logo (Circular, no arrow) -->
-        <div class="user-logo" @click="toggleDropdown">
+        <div class="user-logo" ref="userLogo" @click.stop="toggleDropdown">
           <i class="fas fa-user"></i>
-          <!-- Logout button dropdown -->
           <div v-show="dropdownVisible" class="logout-menu">
             <button class="logout-btn" @click="logout">Logout</button>
           </div>
@@ -31,7 +35,7 @@
     <!-- Main Content Area -->
     <div class="content container">
       <h2>Welcome to the Dashboard</h2>
-      <p>This is your dashboard content.</p>
+      <p>This is your dashboard content</p>
     </div>
 
     <!-- Footer -->
@@ -57,22 +61,39 @@ export default {
       localStorage.removeItem("authToken");
       this.$router.push("/");
     },
+    handleClickOutside(event) {
+      // Check if the click target is NOT inside the user logo element
+      if (this.$refs.userLogo && !this.$refs.userLogo.contains(event.target)) {
+        this.dropdownVisible = false;
+      }
+    },
+  },
+  mounted() {
+    document.addEventListener("click", this.handleClickOutside);
+  },
+  beforeUnmount() {
+    document.removeEventListener("click", this.handleClickOutside);
   },
 };
 </script>
 
 <style scoped>
-/* Root container to ensure full height and flex layout */
+/* Root container */
 .dashboard {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
+.navbar-logo {
+  height: 40px;
+  object-fit: contain;
+}
+
 /* Main content takes remaining space */
 .content {
   flex: 1;
-  margin-top: 20px; /* optional spacing */
+  margin-top: 20px;
 }
 
 /* Navbar adjustments */
@@ -99,6 +120,7 @@ export default {
   position: relative;
 }
 
+/* FontAwesome icon styling */
 .user-logo i {
   font-size: 18px;
   color: #333;
@@ -116,6 +138,7 @@ export default {
   z-index: 1000;
 }
 
+/* Logout button styling */
 .logout-btn {
   background: none;
   border: none;
@@ -129,7 +152,7 @@ export default {
   background-color: #f8f9fa;
 }
 
-/* Footer styling: Remove top margin and ensure it stays at bottom */
+/* Footer styling */
 .footer {
   background-color: #f8f9fa;
   padding: 10px;
