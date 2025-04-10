@@ -207,7 +207,10 @@ export default {
       if (this.email === "test@example.com" && this.password === "password123") {
         this.message = "Login successful!";
         this.messageType = "success";
+        // Set the authentication flag in localStorage.
+        localStorage.setItem("authenticated", "true");
         setTimeout(() => {
+          // Redirect to the dashboard on successful login.
           this.$router.replace("/dashboard");
         }, 1000);
       } else {

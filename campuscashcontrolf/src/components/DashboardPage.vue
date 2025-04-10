@@ -58,8 +58,8 @@ export default {
       this.dropdownVisible = !this.dropdownVisible;
     },
     logout() {
-      localStorage.removeItem("authToken");
-      this.$router.push("/");
+      localStorage.removeItem("authenticated");
+      this.$router.replace({ name: "home" });
     },
     handleClickOutside(event) {
       // Check if the click target is NOT inside the user logo element
