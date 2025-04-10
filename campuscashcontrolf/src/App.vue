@@ -9,3 +9,9 @@ export default {
   name: "App",
 };
 </script>
+
+<style>
+* {
+  font-family: 'Ubuntu', sans-serif;
+}
+</style>

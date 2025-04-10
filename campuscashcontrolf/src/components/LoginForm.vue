@@ -215,7 +215,7 @@ export default {
         }, 1000);
       })
       .catch(error => {
-        this.message = "Invalid credentials or login error.";
+        this.message = "Invalid credentials or login error";
         this.messageType = "danger";
         console.error("Login error:", error.response.data);
       })
@@ -242,7 +242,7 @@ export default {
         }, 2000);
       })
       .catch(error => {
-        this.message = "Signup failed. Please check the details.";
+        this.message = "Signup failed. Please check the details";
         this.messageType = "danger";
         console.error("Signup error:", error.response.data);
       })
