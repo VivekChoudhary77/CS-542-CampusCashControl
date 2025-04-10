@@ -27,9 +27,11 @@ Including another URLconf
 
 from django.urls import path, include
 from django.views.generic import RedirectView
+from django.contrib import admin
 
 urlpatterns = [
-    path("api/", include("api.urls")),  # Django API
+    path('admin/', admin.site.urls),
+    path("api/", include("accounts.urls")),  # Django API
     path("", RedirectView.as_view(url="http://localhost:8080/", permanent=False)),  # Redirect to Vue
 ]
 

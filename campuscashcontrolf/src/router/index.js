@@ -20,19 +20,19 @@ const router = createRouter({
 
 // Global navigation guard to enforce authentication rules:
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem("authenticated") === "true";
+  const isAuthenticated = !!localStorage.getItem("access_token");
 
-  // If not authenticated, force any navigation to go to the login page ("home")
+  // Unauthenticated users can only access the home (login) page.
   if (!isAuthenticated && to.name !== "home") {
     return next({ name: "home" });
   }
-  
-  // If authenticated and trying to access the login page ("home"), redirect to dashboard
+
+  // Authenticated users should not see the login page.
   if (isAuthenticated && to.name === "home") {
     return next({ name: "dashboard" });
   }
-  
-  // Otherwise, allow the navigation to the requested route
+
+  // Otherwise, allow navigation.
   next();
 });
 

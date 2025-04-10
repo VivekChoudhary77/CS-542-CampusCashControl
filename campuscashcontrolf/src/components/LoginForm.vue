@@ -6,8 +6,8 @@
     </h2>
     <p class="text-muted text-center mb-4">
       {{ formMode === 'login' ? 'Enter your credentials to access your account' :
-        formMode === 'signup' ? 'Fill in the details to create your account' :
-          'Enter your email to receive a reset link' }}
+         formMode === 'signup' ? 'Fill in the details to create your account' :
+         'Enter your email to receive a reset link' }}
     </p>
 
     <!-- Alert Messages -->
@@ -34,7 +34,7 @@
         </div>
       </div>
 
-      <!-- Password Field - Not shown in forgot password mode -->
+      <!-- Password Field -->
       <div v-if="formMode !== 'forgot'" class="mb-3">
         <div class="d-flex justify-content-between align-items-center">
           <label for="password" class="form-label">Password:</label>
@@ -58,18 +58,18 @@
         </div>
       </div>
 
-      <!-- Confirm Password Field - Only shown in signup mode -->
+      <!-- Confirm Password Field - Only in signup mode -->
       <div v-if="formMode === 'signup'" class="mb-3">
         <label for="confirmPassword" class="form-label">Confirm Password:</label>
         <div class="input-group">
           <span class="input-group-text">
             <i class="fa-solid fa-lock"></i>
           </span>
-          <input v-model="confirmPassword" :type="showPassword ? 'text' : 'password'" id="confirmPassword"
+          <input v-model="confirmPassword" :type="showConfirmPassword ? 'text' : 'password'" id="confirmPassword"
             class="form-control" :class="{ 'is-invalid': confirmPasswordError }" placeholder="••••••••"
             @input="validateConfirmPassword" required />
-          <button type="button" class="btn btn-outline-secondary" @click="toggleShowPassword">
-            <i :class="showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+          <button type="button" class="btn btn-outline-secondary" @click="toggleShowConfirmPassword">
+            <i :class="showConfirmPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
           </button>
         </div>
         <div v-if="confirmPasswordError" class="invalid-feedback">
@@ -109,6 +109,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   data() {
     return {
@@ -117,6 +118,7 @@ export default {
       password: "",
       confirmPassword: "",
       showPassword: false,
+      showConfirmPassword: false,
       emailError: false,
       passwordError: false,
       confirmPasswordError: false,
@@ -149,35 +151,31 @@ export default {
     toggleShowPassword() {
       this.showPassword = !this.showPassword;
     },
+    toggleShowConfirmPassword() {
+      this.showConfirmPassword = !this.showConfirmPassword;
+    },
     validateForm() {
       this.emailError = !this.isValidEmail(this.email);
 
       if (this.formMode !== 'forgot') {
-        // Validate password field on blur or submit
         this.passwordError = this.password.length < 8;
       }
 
       if (this.formMode === 'signup') {
-        // Ensure confirmPassword validation is run
         this.validateConfirmPassword();
       }
 
-      // Return overall validity (this is not used explicitly)
       return !this.emailError &&
-        (this.formMode === 'forgot' || !this.passwordError) &&
-        (this.formMode !== 'signup' || !this.confirmPasswordError);
+             (this.formMode === 'forgot' || !this.passwordError) &&
+             (this.formMode !== 'signup' || !this.confirmPasswordError);
     },
     validatePassword() {
-      // Live validation: if password length is 8 or more, clear the error.
       this.passwordError = this.password.length < 8;
-
-      // In signup mode, validate confirmPassword too, so errors update as password changes
       if (this.formMode === 'signup') {
         this.validateConfirmPassword();
       }
     },
     validateConfirmPassword() {
-      // When confirmPassword input changes, check that it matches password.
       this.confirmPasswordError = this.password !== this.confirmPassword;
     },
     isValidEmail(email) {
@@ -185,56 +183,72 @@ export default {
       return regex.test(email);
     },
     handleSubmit() {
-      // Final validation before submit
       if (!this.validateForm()) return;
 
       this.isLoading = true;
       this.message = '';
 
-      setTimeout(() => {
-        if (this.formMode === 'login') {
-          this.handleLogin();
-        } else if (this.formMode === 'signup') {
-          this.handleSignup();
-        } else {
-          this.handleForgotPassword();
-        }
-        this.isLoading = false;
-      }, 1000);
-    },
-    handleLogin() {
-      // For demo purposes
-      if (this.email === "test@example.com" && this.password === "password123") {
-        this.message = "Login successful!";
-        this.messageType = "success";
-        // Set the authentication flag in localStorage.
-        localStorage.setItem("authenticated", "true");
-        setTimeout(() => {
-          // Redirect to the dashboard on successful login.
-          this.$router.replace("/dashboard");
-        }, 1000);
+      if (this.formMode === 'login') {
+        this.handleLogin();
+      } else if (this.formMode === 'signup') {
+        this.handleSignup();
       } else {
-        this.message = "Invalid credentials. Try: test@example.com / password123";
-        this.messageType = "danger";
+        this.handleForgotPassword();
       }
     },
-    handleSignup() {
-      // Simulate account creation
-      if (this.email && this.password && this.password === this.confirmPassword) {
-        this.message = `Account created successfully for ${this.email}`;
+    // Real login: call JWT endpoint instead of dummy check.
+    handleLogin() {
+      axios.post('http://localhost:8000/api/token/', {
+        username: this.email,  // using email as username
+        password: this.password,
+      })  
+      .then(response => {
+        const { access, refresh } = response.data;
+        localStorage.setItem('access_token', access);
+        localStorage.setItem('refresh_token', refresh);
+        // Optionally set an authentication flag if you use one:
+        localStorage.setItem("authenticated", "true");
+        this.message = "Login successful!";
         this.messageType = "success";
-        // Reset fields
+        setTimeout(() => {  
+          this.$router.replace("/dashboard");
+        }, 1000);
+      })
+      .catch(error => {
+        this.message = "Invalid credentials or login error.";
+        this.messageType = "danger";
+        console.error("Login error:", error.response.data);
+      })
+      .finally(() => {
+        this.isLoading = false;
+      });
+    },
+    // Real signup: call our /api/signup/ endpoint.
+    handleSignup() {
+      axios.post('http://localhost:8000/api/signup/', {
+        email: this.email,
+        password: this.password,
+        confirm_password: this.confirmPassword,
+      })
+      .then(response => {
+        this.message = response.data.message || `Account created successfully for ${this.email}.`;
+        this.messageType = "success";
+        // Reset fields and switch to login mode.
         this.email = "";
         this.password = "";
         this.confirmPassword = "";
-        // Switch to login form after a delay
         setTimeout(() => {
           this.setFormMode('login');
         }, 2000);
-      } else {
-        this.message = "Please fill in all fields correctly";
+      })
+      .catch(error => {
+        this.message = "Signup failed. Please check the details.";
         this.messageType = "danger";
-      }
+        console.error("Signup error:", error.response.data);
+      })
+      .finally(() => {
+        this.isLoading = false;
+      });
     },
     handleForgotPassword() {
       if (this.email) {
@@ -250,54 +264,41 @@ export default {
 </script>
 
 <style scoped>
-/* Form card styling */
+/* Keep your existing styling unchanged */
 .card {
   background-color: rgba(255, 255, 255, 0.9);
-  /* Light background with transparency */
   border-radius: 10px;
   padding: 30px;
   width: 100%;
   max-width: 400px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  /* Subtle shadow */
 }
-
-/* Title in the form */
 .card h2 {
   font-size: 1.8rem;
   font-weight: 700;
   color: #333;
 }
-
-/* Invalid form feedback */
 .invalid-feedback {
   display: block;
   color: #dc3545;
 }
-
-/* Button styling */
 .btn-primary {
   background-color: #0d6efd;
   border-color: #0d6efd;
   padding: 10px;
   font-weight: 500;
 }
-
 .btn-primary:hover {
   background-color: #0b5ed7;
   border-color: #0b5ed7;
 }
-
-/* Input group styling */
 .input-group-text {
   background-color: #f8f9fa;
   border-right: none;
 }
-
 .input-group .form-control {
   border-left: none;
 }
-
 .input-group .form-control:focus {
   border-color: #ced4da;
   box-shadow: none;

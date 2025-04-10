@@ -55,7 +55,12 @@
         this.dropdownVisible = !this.dropdownVisible;
       },
       logout() {
-        localStorage.removeItem("authenticated");
+        // Remove JWT tokens and any authentication flag you are using.
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("authenticated"); // If you're still setting this.
+
+        // Optionally, you may clear all localStorage data with localStorage.clear();
         this.$router.replace({ name: "home" });
       },
       handleClickOutside(event) {
