@@ -21,6 +21,9 @@
           <li class="nav-item">
             <router-link class="nav-link" to="/reports">Reports</router-link>
           </li>
+          <li class="nav-item">
+            <router-link class="nav-link" to="/UserAccess">User Access</router-link>
+          </li>
         </ul>
         <!-- User Logo (Circular, no arrow) -->
         <div class="user-logo" ref="userLogo" @click.stop="toggleDropdown">

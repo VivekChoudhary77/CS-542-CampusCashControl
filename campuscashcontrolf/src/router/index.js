@@ -1,13 +1,15 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomePage from "@/components/HomePage.vue"; // Login/landing page
-import Dashboard from "@/components/DashboardPage.vue"; 
+import Dashboard from "@/components/DashboardPage.vue";
 import DepartmentPage from "@/components/DepartmentPage.vue";
 import UploadPage from "@/components/UploadPage.vue";
+import UserAccessPage from "@/components/UserAccessPage.vue";
 import ReportPage from "@/components/ReportPage.vue";
 
 const routes = [
   { path: "/", name: "home", component: HomePage },
   { path: "/dashboard", name: "dashboard", component: Dashboard },
+  { path: '/useraccess', name: 'useraccess', component: UserAccessPage },
   { path: "/departments", name: "department", component: DepartmentPage },
   { path: "/upload", name: "upload", component: UploadPage },
   { path: "/reports", name: "report", component: ReportPage },
