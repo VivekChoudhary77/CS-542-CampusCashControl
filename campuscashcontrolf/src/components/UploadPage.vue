@@ -1,5 +1,5 @@
 <template>
-  <div class="upload">
+  <div class="upload d-flex flex-column min-vh-100">
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
@@ -34,7 +34,7 @@
     </nav>
   
     <!-- Main Content Area -->
-    <div class="content container">
+    <div class="content container flex-grow-1 pb-5">
       <h2 class="mb-4">Upload Financial Data</h2>
   
       <div class="w-100 max-w-2xl mx-auto p-4 bg-white rounded shadow">
@@ -64,9 +64,9 @@
           <div class="col-md-4 mb-3">
             <label class="form-label">Financial Year</label>
             <select class="form-select" v-model="metadata.year">
-              <option value="" disabled>Select Year</option>
-              <option v-for="year in years" :key="year" :value="year">
-                {{ year }}
+             <option value="" disabled>Select Year</option>
+              <option v-for="yr in years" :key="yr" :value="yr">
+                {{ yr }}
               </option>
             </select>
           </div>
@@ -85,8 +85,7 @@
         </div>
   
         <!-- File Upload Area -->
-        <div
-          class="border border-2 border-dashed rounded p-4 text-center"
+        <div class="border border-2 border-dashed rounded p-4 text-center"
           :class="{ 'border-primary bg-light': isDragging, 'border-success bg-light': selectedFile }"
           @dragover.prevent="handleDragOver"
           @dragleave.prevent="handleDragLeave"
@@ -187,17 +186,10 @@ export default {
         year: '',
       },
       // Options for dropdowns
-      departments: [
-        "Computer Science",
-        "Global School",
-        "Business School",
-        "AI & Data Science",
-        "Sports and Recreational Center",
-        "Sales"
-      ],
+      departments: [],
       months: ["January", "February", "March", "April", "May", "June", 
                "July", "August", "September", "October", "November", "December"],
-      years: ["2023", "2024", "2025", "2026", "2027"]
+      years: Array.from({ length: 2027 - 2023 + 1 }, (_, i) => 2023 + i),
     }
   },
   computed: {
@@ -292,6 +284,21 @@ export default {
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     },
     handleUpload() {
+      // 1) Department validation
+      if (!this.metadata.department) {
+        this.errorMessage = "'Department' has not been selected.";
+        return;
+      }
+      // 2) Month validation
+      if (!this.metadata.month) {
+        this.errorMessage = "'Month' has not been selected.";
+        return;
+      }
+      // 3) year validation
+      if (!this.metadata.year) {
+        this.errorMessage = "'Financial Year' has not been selected.";
+        return;
+      }
       if (!this.selectedFile) {
         this.errorMessage = "Please select a file to upload";
         return;
@@ -326,6 +333,16 @@ export default {
   },
   mounted() {
     document.addEventListener("click", this.handleClickOutside);
+    // Fetch only active departments from your DRF view:
+    axios.get("http://localhost:8000/api/departments/active/")
+      .then(res => {
+        // assuming your serializer returns [{ id, name, … }, …]
+        // we only need the name for the select
+        this.departments = res.data.map(d => d.name);
+      })
+      .catch(err => {
+        console.error("Could not load departments:", err);
+      });
   },
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside);

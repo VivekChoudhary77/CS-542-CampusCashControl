@@ -3,13 +3,9 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-        <!-- <router-link class="navbar-brand" to="/dashboard">CampusCashControl</router-link> -->
-         <!-- Navbar Brand with Image -->
-      <router-link class="navbar-brand" to="/dashboard">
-        <img src="@/assets/CCC Dashboard Logo.png" alt="CampusCashControl" class="navbar-logo" />
-      </router-link>
-
-
+        <router-link class="navbar-brand" to="/dashboard">
+          <img src="@/assets/CCC Dashboard Logo.png" alt="CampusCashControl" class="navbar-logo" />
+        </router-link>
         <!-- Navbar Links -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
@@ -61,80 +57,69 @@ export default {
       this.dropdownVisible = !this.dropdownVisible;
     },
     logout() {
-      // Remove JWT tokens and any authentication flag you are using.
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
-      localStorage.removeItem("authenticated"); // If you're still setting this.
-
-      // Optionally, you may clear all localStorage data with localStorage.clear();
+      localStorage.removeItem("authenticated");
       this.$router.replace({ name: "home" });
     },
     handleClickOutside(event) {
-      // Check if the click target is NOT inside the user logo element
       if (this.$refs.userLogo && !this.$refs.userLogo.contains(event.target)) {
         this.dropdownVisible = false;
       }
-    },
+    }
   },
   mounted() {
     document.addEventListener("click", this.handleClickOutside);
+    // Push a state and override back button behavior
+    window.history.pushState(null, "", window.location.href);
+    window.onpopstate = () => {
+      window.history.go(1);
+    };
   },
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside);
-  },
+    // Restore default back button
+    window.onpopstate = null;
+  }
 };
 </script>
 
 <style scoped>
-/* Root container */
 .dashboard {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
-
 .navbar-logo {
   height: 40px;
   object-fit: contain;
 }
-
-/* Main content takes remaining space */
 .content {
   flex: 1;
   margin-top: 20px;
 }
-
-/* Navbar adjustments */
 .navbar {
   padding: 10px 20px;
 }
-
-/* Container text centering for content */
 .container {
   text-align: center;
 }
-
-/* User Logo Styling */
 .user-logo {
   width: 40px;
   height: 40px;
-  border-radius: 50%; /* Makes it circular */
+  border-radius: 50%;
   background-color: white;
-  border: 2px solid #ccc; /* Optional border */
+  border: 2px solid #ccc;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   position: relative;
 }
-
-/* FontAwesome icon styling */
 .user-logo i {
   font-size: 18px;
   color: #333;
 }
-
-/* Logout menu styling */
 .logout-menu {
   position: absolute;
   top: 45px;
@@ -145,8 +130,6 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 }
-
-/* Logout button styling */
 .logout-btn {
   background: none;
   border: none;
@@ -155,12 +138,9 @@ export default {
   text-align: left;
   cursor: pointer;
 }
-
 .logout-btn:hover {
   background-color: #f8f9fa;
 }
-
-/* Footer styling */
 .footer {
   background-color: #f8f9fa;
   padding: 10px;

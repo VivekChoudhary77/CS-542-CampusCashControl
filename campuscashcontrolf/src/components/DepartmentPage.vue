@@ -24,9 +24,9 @@
         </ul>
  
         <!-- User Logo -->
-        <div class="user-logo position-relative" ref="userLogo" @click.stop="toggleDropdown">
+        <div class="user-logo" ref="userLogo" @click.stop="toggleDropdown">
           <i class="fas fa-user"></i>
-          <div v-show="dropdownVisible" class="logout-menu bg-white border shadow-sm position-absolute end-0">
+          <div v-show="dropdownVisible" class="logout-menu">
             <button class="logout-btn" @click="logout">Logout</button>
           </div>
         </div>
@@ -79,11 +79,8 @@
                 </td>
                 <td class="text-center">
                   <button @click="editDepartment(dept)" class="btn btn-sm btn-warning me-2">Edit</button>
-                  <button
-                    @click="toggleStatus(dept)"
-                    class="btn btn-sm"
-                    :class="dept.is_active ? 'btn-danger' : 'btn-success'"
-                  >
+                  <button @click="toggleStatus(dept)" class="btn btn-sm"
+                    :class="dept.is_active ? 'btn-danger' : 'btn-success'">
                     {{ dept.is_active ? 'Deactivate' : 'Activate' }}
                   </button>
                 </td>
@@ -95,8 +92,8 @@
     </div>
  
     <!-- Footer -->
-    <footer class="footer bg-light text-center py-2 mt-auto">
-      <p class="mb-0">&copy; 2025 CampusCashControl</p>
+    <footer class="footer text-center">
+      <p>&copy; 2025 CampusCashControl</p>
     </footer>
   </div>
 </template>
@@ -212,8 +209,11 @@ export default {
   flex: 1;
   margin-top: 20px;
 }
-.footer {
-  background-color: #f8f9fa;
+.navbar {
+  padding: 10px 20px;
+}
+.container {
+  text-align: center;
 }
 .user-logo {
   width: 40px;
@@ -225,6 +225,11 @@ export default {
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  position: relative;
+}
+.user-logo i {
+  font-size: 18px;
+  color: #333;
 }
 .logout-menu {
   top: 45px;
@@ -239,5 +244,10 @@ export default {
 }
 .logout-btn:hover {
   background-color: #f8f9fa;
+}
+.footer {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-top: 1px solid #e7e7e7;
 }
 </style>

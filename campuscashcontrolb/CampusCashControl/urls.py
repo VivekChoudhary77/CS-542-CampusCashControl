@@ -35,5 +35,6 @@ urlpatterns = [
     path('api/', include('uploads.urls')),
     path("", RedirectView.as_view(url="http://localhost:8080/", permanent=False)),  # Redirect to Vue
     path('api/', include('departments.urls')),
+    path('api/reports/', include('reports.urls')),
 ]
 

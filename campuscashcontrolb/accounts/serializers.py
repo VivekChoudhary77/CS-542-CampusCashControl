@@ -9,7 +9,7 @@ class SignupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        # We will use "email" as the username so the email field is required.
+        # We will use "email" as the username, so the email field is required.
         # Only three fields: email, password, confirm_password.
         fields = ('email', 'password', 'confirm_password')
 
@@ -21,6 +21,6 @@ class SignupSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('confirm_password', None)
         email = validated_data['email']
-        # Use email as username.
+        # Use email as a username.
         user = User.objects.create_user(username=email, email=email, password=validated_data['password'])
         return user
