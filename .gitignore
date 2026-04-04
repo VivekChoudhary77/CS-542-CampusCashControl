@@ -2,14 +2,22 @@
 .DS_Store
 Thumbs.db
 
+# Python cache and bytecode (all subfolders)
+**/__pycache__/
+*.py[cod]
+*$py.class
+
 # Backend (Django) #
 campuscashcontrolb/api/__pycache__/
 campuscashcontrolb/*.pyc
 campuscashcontrolb/*.sqlite3
 campuscashcontrolb/myvenv/  # Or your virtual environment name
+campuscashcontrolb/.venv/
+campuscashcontrolb/venv/
 campuscashcontrolb/*.log
 campuscashcontrolb/local_settings.py
 campuscashcontrolb/*.env
+campuscashcontrolb/db.sqlite3
 
 # Frontend (Vue.js) #
 campuscashcontrolf/node_modules/
