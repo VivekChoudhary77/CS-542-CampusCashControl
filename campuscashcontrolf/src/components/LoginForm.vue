@@ -1,108 +1,109 @@
 <template>
-  <div class="card">
-    <!-- Form Header -->
-    <h2 class="text-center mb-4">
-      {{ formMode === 'login' ? 'Sign In' : formMode === 'signup' ? 'Create Account' : 'Reset Password' }}
-    </h2>
-    <p class="text-muted text-center mb-4">
-      {{ formMode === 'login' ? 'Enter your credentials to access your account' :
-         formMode === 'signup' ? 'Fill in the details to create your account' :
-         'Enter your email to receive a reset link' }}
-    </p>
-
-    <!-- Alert Messages -->
-    <div v-if="message" :class="`alert alert-${messageType} mb-4`">
-      {{ message }}
+  <div class="auth-wrapper">
+    <div class="auth-header">
+      <h2>{{ formMode === 'login' ? 'Sign In' : formMode === 'signup' ? 'Create Account' : 'Reset Password' }}</h2>
+      <p>
+        {{ formMode === 'login' ? 'Enter your credentials to access your account' :
+           formMode === 'signup' ? 'Fill in the details to create your account' :
+           'Enter your email to receive a reset link' }}
+      </p>
     </div>
 
-    <form @submit.prevent="handleSubmit">
-      <!-- Email Field -->
-      <div class="mb-3">
-        <label for="email" class="form-label">Email:</label>
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="fa-solid fa-envelope"></i>
-          </span>
-          <input v-model="email" type="email" id="email" class="form-control" placeholder="your@email.com"
-            @blur="validateForm" required />
-          <button type="button" class="btn btn-outline-danger border-start-0" disabled v-if="emailError">
-            <i class="fa-solid fa-exclamation-circle"></i>
-          </button>
-        </div>
-        <div v-if="emailError" class="invalid-feedback">
-          Please enter a valid email address
-        </div>
-      </div>
+    <el-alert
+      v-if="message"
+      :title="message"
+      :type="messageType"
+      :closable="false"
+      show-icon
+      class="alert-box"
+    />
 
-      <!-- Password Field -->
-      <div v-if="formMode !== 'forgot'" class="mb-3">
-        <div class="d-flex justify-content-between align-items-center">
-          <label for="password" class="form-label">Password:</label>
-          <button v-if="formMode === 'login'" type="button" class="btn btn-link text-decoration-none p-0"
-            @click="setFormMode('forgot')">
-            Forgot password?
-          </button>
-        </div>
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="fa-solid fa-lock"></i>
-          </span>
-          <input v-model="password" :type="showPassword ? 'text' : 'password'" id="password" class="form-control"
-            :class="{ 'is-invalid': passwordError }" placeholder="••••••••" @input="validatePassword" required />
-          <button type="button" class="btn btn-outline-secondary" @click="toggleShowPassword">
-            <i :class="showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
-          </button>
-        </div>
-        <div v-if="passwordError" class="invalid-feedback">
-          Password must be at least 8 characters long
-        </div>
-      </div>
+    <el-form label-position="top" @submit.prevent="handleSubmit">
+      <el-form-item label="Email" :error="emailError ? 'Please enter a valid email address' : ''">
+        <el-input
+          v-model="email"
+          type="email"
+          placeholder="your@email.com"
+          @blur="validateForm"
+          clearable
+        />
+      </el-form-item>
 
-      <!-- Confirm Password Field - Only in signup mode -->
-      <div v-if="formMode === 'signup'" class="mb-3">
-        <label for="confirmPassword" class="form-label">Confirm Password:</label>
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="fa-solid fa-lock"></i>
-          </span>
-          <input v-model="confirmPassword" :type="showConfirmPassword ? 'text' : 'password'" id="confirmPassword"
-            class="form-control" :class="{ 'is-invalid': confirmPasswordError }" placeholder="••••••••"
-            @input="validateConfirmPassword" required />
-          <button type="button" class="btn btn-outline-secondary" @click="toggleShowConfirmPassword">
-            <i :class="showConfirmPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
-          </button>
-        </div>
-        <div v-if="confirmPasswordError" class="invalid-feedback">
-          Passwords do not match
-        </div>
-      </div>
+      <el-form-item
+        v-if="formMode !== 'forgot'"
+        label="Password"
+        :error="passwordError ? 'Password must be at least 8 characters long' : ''"
+      >
+        <template #label>
+          <div class="password-label-row">
+            <span>Password</span>
+            <el-button
+              v-if="formMode === 'login'"
+              type="primary"
+              text
+              @click="setFormMode('forgot')"
+            >
+              Forgot password?
+            </el-button>
+          </div>
+        </template>
+        <el-input
+          v-model="password"
+          :type="showPassword ? 'text' : 'password'"
+          placeholder="Enter password"
+          @input="validatePassword"
+        >
+          <template #suffix>
+            <el-button text @click="toggleShowPassword">
+              <el-icon><component :is="showPassword ? Hide : View" /></el-icon>
+            </el-button>
+          </template>
+        </el-input>
+      </el-form-item>
 
-      <!-- Submit Button -->
-      <button type="submit" class="btn btn-primary w-100" :disabled="formIsInvalid || isLoading">
-        <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+      <el-form-item
+        v-if="formMode === 'signup'"
+        label="Confirm Password"
+        :error="confirmPasswordError ? 'Passwords do not match' : ''"
+      >
+        <el-input
+          v-model="confirmPassword"
+          :type="showConfirmPassword ? 'text' : 'password'"
+          placeholder="Re-enter password"
+          @input="validateConfirmPassword"
+        >
+          <template #suffix>
+            <el-button text @click="toggleShowConfirmPassword">
+              <el-icon><component :is="showConfirmPassword ? Hide : View" /></el-icon>
+            </el-button>
+          </template>
+        </el-input>
+      </el-form-item>
+
+      <el-button
+        type="primary"
+        size="large"
+        class="submit-btn"
+        :loading="isLoading"
+        :disabled="formIsInvalid || isLoading"
+        @click="handleSubmit"
+      >
         {{ formMode === 'login' ? 'Sign In' : formMode === 'signup' ? 'Create Account' : 'Send Reset Link' }}
-      </button>
-    </form>
+      </el-button>
+    </el-form>
 
-    <!-- Form Switch Options -->
-    <div class="text-center mt-3">
+    <div class="switch-row">
       <template v-if="formMode === 'login'">
-        Don't have an account?
-        <button type="button" class="btn btn-link text-decoration-none" @click="setFormMode('signup')">
-          Sign up
-        </button>
+        <span>Don't have an account?</span>
+        <el-button type="primary" text @click="setFormMode('signup')">Sign up</el-button>
       </template>
       <template v-else-if="formMode === 'signup'">
-        Already have an account?
-        <button type="button" class="btn btn-link text-decoration-none" @click="setFormMode('login')">
-          Sign in
-        </button>
+        <span>Already have an account?</span>
+        <el-button type="primary" text @click="setFormMode('login')">Sign in</el-button>
       </template>
-      <template v-else-if="formMode === 'forgot'">
-        Remember your password?
-        <button type="button" class="btn btn-link text-decoration-none" @click="setFormMode('login')">
-          Sign in
-        </button>
+      <template v-else>
+        <span>Remember your password?</span>
+        <el-button type="primary" text @click="setFormMode('login')">Sign in</el-button>
       </template>
     </div>
   </div>
@@ -110,7 +111,14 @@
 
 <script>
 import axios from 'axios';
+import { ElNotification } from "element-plus";
+import { View, Hide } from "@element-plus/icons-vue";
+
 export default {
+  components: {
+    View,
+    Hide,
+  },
   data() {
     return {
       formMode: 'login', // 'login', 'signup', or 'forgot'
@@ -198,6 +206,12 @@ export default {
     },
     // Real login: call JWT endpoint instead of dummy check.
     handleLogin() {
+      ElNotification({
+        title: "Signing in",
+        message: "Please wait while we verify your credentials.",
+        type: "primary",
+      });
+
       axios.post('http://localhost:8000/api/token/', {
         username: this.email,  // using email as username
         password: this.password,
@@ -210,14 +224,24 @@ export default {
         localStorage.setItem("authenticated", "true");
         this.message = "Login successful!";
         this.messageType = "success";
+        ElNotification({
+          title: "Login success",
+          message: "Welcome back.",
+          type: "success",
+        });
         setTimeout(() => {  
           this.$router.replace("/dashboard");
         }, 1000);
       })
       .catch(error => {
         this.message = "Invalid credentials or login error";
-        this.messageType = "danger";
-        console.error("Login error:", error.response.data);
+        this.messageType = "error";
+        console.error("Login error:", error.response?.data || error);
+        ElNotification({
+          title: "Login failed",
+          message: "Invalid credentials or login error.",
+          type: "error",
+        });
       })
       .finally(() => {
         this.isLoading = false;
@@ -233,6 +257,11 @@ export default {
       .then(response => {
         this.message = response.data.message || `Account created successfully for ${this.email}.`;
         this.messageType = "success";
+        ElNotification({
+          title: "Signup success",
+          message: "Your account was created. You can now sign in.",
+          type: "success",
+        });
         // Reset fields and switch to login mode.
         this.email = "";
         this.password = "";
@@ -243,8 +272,13 @@ export default {
       })
       .catch(error => {
         this.message = "Signup failed. Please check the details";
-        this.messageType = "danger";
-        console.error("Signup error:", error.response.data);
+        this.messageType = "error";
+        console.error("Signup error:", error.response?.data || error);
+        ElNotification({
+          title: "Signup failed",
+          message: "Please check the details and try again.",
+          type: "error",
+        });
       })
       .finally(() => {
         this.isLoading = false;
@@ -254,9 +288,19 @@ export default {
       if (this.email) {
         this.message = `Password reset link has been sent to ${this.email}`;
         this.messageType = "success";
+        ElNotification({
+          title: "Reset link sent",
+          message: `Password reset link sent to ${this.email}`,
+          type: "info",
+        });
       } else {
         this.message = "Please enter your email address";
-        this.messageType = "danger";
+        this.messageType = "error";
+        ElNotification({
+          title: "Email required",
+          message: "Please enter your email address.",
+          type: "warning",
+        });
       }
     }
   },
@@ -264,43 +308,49 @@ export default {
 </script>
 
 <style scoped>
-/* Keep your existing styling unchanged */
-.card {
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 10px;
-  padding: 30px;
+.auth-wrapper {
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-.card h2 {
-  font-size: 1.8rem;
+
+.auth-header h2 {
+  margin: 0;
+  font-size: 1.65rem;
   font-weight: 700;
-  color: #333;
 }
-.invalid-feedback {
-  display: block;
-  color: #dc3545;
+
+.auth-header p {
+  margin: 10px 0 0;
+  color: #5e6b79;
+  font-size: 0.95rem;
 }
-.btn-primary {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-  padding: 10px;
-  font-weight: 500;
+
+.alert-box {
+  margin: 18px 0;
 }
-.btn-primary:hover {
-  background-color: #0b5ed7;
-  border-color: #0b5ed7;
+
+.password-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
-.input-group-text {
-  background-color: #f8f9fa;
-  border-right: none;
+
+.submit-btn {
+  width: 100%;
+  margin-top: 8px;
+  font-weight: 700;
 }
-.input-group .form-control {
-  border-left: none;
+
+.switch-row {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #546273;
 }
-.input-group .form-control:focus {
-  border-color: #ced4da;
-  box-shadow: none;
+
+.switch-row :deep(.el-button) {
+  padding: 4px;
 }
 </style>

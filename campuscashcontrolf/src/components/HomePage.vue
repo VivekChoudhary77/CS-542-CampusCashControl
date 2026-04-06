@@ -1,72 +1,124 @@
 <template>
-  <div class="container-fluid p-0 vh-100">
-    <div class="row no-gutters vh-100">
-      <!-- Left Side: Full Image (50%) -->
-      <div class="col-12 col-md-6 image-container">
-        <div class="overlay d-flex flex-column justify-content-center align-items-center px-5 text-white text-center">
-          <h1 class="display-4 fw-bold mb-3">CampusCashControl</h1>
-          <p class="lead mb-0">Manages your University expense</p>
-        </div>
-      </div>
+  <el-container class="home-root">
+    <el-main class="home-main-wrap">
+      <el-skeleton :loading="showSkeleton" animated :rows="6">
+        <template #template>
+          <div class="home-main">
+            <el-skeleton-item variant="rect" style="width: 100%; height: 100%;" />
+            <el-skeleton-item variant="rect" style="width: 100%; height: 100%;" />
+          </div>
+        </template>
 
-      <!-- Right Side: Login Form (50%) -->
-      <div class="col-12 col-md-6 form-container d-flex justify-content-center align-items-center">
-        <LoginForm />
-      </div>
-    </div>
-  </div>
+        <template #default>
+          <div class="home-main">
+            <div class="hero-panel">
+              <div class="hero-overlay">
+                <h1>CampusCashControl</h1>
+                <p>Manage and monitor university financial activity with clarity.</p>
+              </div>
+            </div>
+
+            <div class="form-panel">
+              <el-card class="login-card" shadow="hover">
+                <LoginForm />
+              </el-card>
+            </div>
+          </div>
+        </template>
+      </el-skeleton>
+    </el-main>
+  </el-container>
 </template>
 
 <script>
 import LoginForm from "@/components/LoginForm.vue";
 
 export default {
+  data() {
+    return {
+      showSkeleton: true,
+    };
+  },
   components: {
     LoginForm,
+  },
+  mounted() {
+    setTimeout(() => {
+      this.showSkeleton = false;
+    }, 260);
   },
 };
 </script>
 
 <style scoped>
-/* Full Screen - No Scrolling */
-.vh-100 {
-  height: 100vh;
-  overflow: hidden;
+.home-root {
+  min-height: 100vh;
 }
 
-/* Left side: Full-screen image (50%) */
-.image-container {
-  background: url("https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80") no-repeat center center;
+.home-main-wrap {
+  min-height: 100vh;
+  padding: 0;
+}
+
+.home-main {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  min-height: 100vh;
+  padding: 0;
+}
+
+.hero-panel {
+  background: url("https://images.unsplash.com/photo-1577985043696-8bd54d9f093f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") no-repeat center center;
   background-size: cover;
-  height: 100vh; /* Full height */
   position: relative;
 }
 
-.overlay {
+.hero-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
-  height: 100%;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(150deg, rgba(3, 31, 49, 0.65), rgba(3, 17, 29, 0.45));
+  padding: 48px;
 }
 
-/* Right side: Login Form (50%) with gradient black background */
-.form-container {
-  background: linear-gradient(to top, #000c40 , #f0f2f0); /* Gradient background */
-  height: 100vh; /* Full height */
-  color: white; /* White text */
+.hero-overlay h1 {
+  margin: 0 0 12px;
+  font-size: 3rem;
+  font-weight: 800;
 }
 
-/* Responsive adjustments */
-@media (max-width: 767.98px) {
-  .image-container {
-    height: 30vh; /* Reduced height on mobile */
+.hero-overlay p {
+  margin: 0;
+  font-size: 1.1rem;
+  max-width: 520px;
+}
+
+.form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(145deg, #fafcff 0%, #f5efe2 100%);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 460px;
+  border-radius: 18px;
+}
+
+@media (max-width: 960px) {
+  .home-main {
+    grid-template-columns: 1fr;
   }
-  
-  .form-container {
-    height: 70vh; /* More space for form on mobile */
+
+  .hero-panel {
+    min-height: 36vh;
   }
 }
 </style>
