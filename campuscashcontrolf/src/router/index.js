@@ -37,6 +37,30 @@ function startRouteLoader() {
   uiState.routeLoading = true;
 }
 
+function getAccessToken() {
+  const sessionToken = sessionStorage.getItem("access_token");
+  if (sessionToken) {
+    return sessionToken;
+  }
+
+  // Backward compatibility: migrate legacy localStorage sessions to tab-scoped storage.
+  const legacyToken = localStorage.getItem("access_token");
+  if (legacyToken) {
+    const refresh = localStorage.getItem("refresh_token") || "";
+    sessionStorage.setItem("access_token", legacyToken);
+    if (refresh) {
+      sessionStorage.setItem("refresh_token", refresh);
+    }
+    sessionStorage.setItem("authenticated", "true");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("authenticated");
+    return legacyToken;
+  }
+
+  return "";
+}
+
 function closeRouteLoader() {
   const elapsed = Date.now() - routeLoadStartedAt;
   const minVisible = 260;
@@ -51,7 +75,7 @@ function closeRouteLoader() {
 router.beforeEach((to, from, next) => {
   startRouteLoader();
 
-  const isAuthenticated = !!localStorage.getItem("access_token");
+  const isAuthenticated = !!getAccessToken();
 
   // Unauthenticated users can only access the home (login) page.
   if (!isAuthenticated && !["home", "not-found"].includes(to.name)) {

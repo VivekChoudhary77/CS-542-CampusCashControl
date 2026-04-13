@@ -4,7 +4,7 @@
       <template #extra>
         <el-space>
           <el-button type="primary" @click="goPrimary">Go Back</el-button>
-          <el-button @click="$router.replace({ name: 'home' })">Login Page</el-button>
+          <el-button @click="logoutToLogin">Login Page</el-button>
         </el-space>
       </template>
     </el-result>
@@ -16,8 +16,24 @@ export default {
   name: "NotFoundPage",
   methods: {
     goPrimary() {
-      const isAuthenticated = !!localStorage.getItem("access_token");
+      if (window.history.length > 1) {
+        this.$router.go(-1);
+        return;
+      }
+
+      const isAuthenticated = !!(
+        sessionStorage.getItem("access_token") || localStorage.getItem("access_token")
+      );
       this.$router.replace({ name: isAuthenticated ? "dashboard" : "home" });
+    },
+    logoutToLogin() {
+      sessionStorage.removeItem("access_token");
+      sessionStorage.removeItem("refresh_token");
+      sessionStorage.removeItem("authenticated");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("authenticated");
+      this.$router.replace({ name: "home" });
     },
   },
 };

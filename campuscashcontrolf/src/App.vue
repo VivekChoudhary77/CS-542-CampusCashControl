@@ -14,19 +14,6 @@ export default {
       uiState,
     };
   },
-  methods: {
-    handleBeforeUnload() {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      localStorage.removeItem("authenticated");
-    },
-  },
-  mounted() {
-    window.addEventListener("beforeunload", this.handleBeforeUnload);
-  },
-  beforeUnmount() {
-    window.removeEventListener("beforeunload", this.handleBeforeUnload);
-  },
 };
 </script>
 
