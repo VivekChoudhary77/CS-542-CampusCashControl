@@ -31,8 +31,13 @@ const router = createRouter({
 });
 
 let routeLoadStartedAt = 0;
+let routeLoaderTimeoutId = null;
 
 function startRouteLoader() {
+  if (routeLoaderTimeoutId !== null) {
+    clearTimeout(routeLoaderTimeoutId);
+    routeLoaderTimeoutId = null;
+  }
   routeLoadStartedAt = Date.now();
   uiState.routeLoading = true;
 }
@@ -66,8 +71,12 @@ function closeRouteLoader() {
   const minVisible = 260;
   const delay = elapsed < minVisible ? minVisible - elapsed : 0;
 
-  setTimeout(() => {
+  if (routeLoaderTimeoutId !== null) {
+    clearTimeout(routeLoaderTimeoutId);
+  }
+  routeLoaderTimeoutId = setTimeout(() => {
     uiState.routeLoading = false;
+    routeLoaderTimeoutId = null;
   }, delay);
 }
 
