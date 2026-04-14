@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-wrap">
+  <div :class="['dashboard-wrap', { 'is-dark': isDarkMode }]">
     <el-skeleton :loading="showSkeleton" animated :rows="8">
       <template #template>
         <el-card shadow="never" class="hero-card">
@@ -34,12 +34,19 @@
 </template>
 
 <script>
+import { themeState } from "@/state/themeState";
+
 export default {
   name: "DashboardPage",
   data() {
     return {
       showSkeleton: true,
     };
+  },
+  computed: {
+    isDarkMode() {
+      return themeState.isDarkMode;
+    },
   },
   mounted() {
     setTimeout(() => {
@@ -81,6 +88,24 @@ export default {
 
 .tableau-card {
   border-radius: 14px;
+}
+
+.dashboard-wrap.is-dark :deep(.el-card) {
+  background: linear-gradient(160deg, rgba(11, 15, 24, 0.68), rgba(11, 15, 24, 0.82));
+  border-color: rgba(166, 188, 216, 0.24);
+}
+
+.dashboard-wrap.is-dark .hero-card h2 {
+  color: #e7eefc;
+}
+
+.dashboard-wrap.is-dark .hero-card p {
+  color: #b7c5d8;
+}
+
+.dashboard-wrap.is-dark .tableau-container {
+  border-color: rgba(166, 188, 216, 0.24);
+  background: rgba(5, 8, 14, 0.55);
 }
 
 .tableau-container {

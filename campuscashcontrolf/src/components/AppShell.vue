@@ -1,84 +1,91 @@
 <template>
-  <el-container class="app-shell">
-    <el-header class="app-header">
-      <router-link to="/dashboard" class="brand-link">
-        <img src="@/assets/CCC Dashboard Logo.png" alt="CampusCashControl" class="brand-logo" />
-      </router-link>
+  <el-container :class="['app-shell', { 'is-dark': isDarkMode }]">
+    <HeroDotBackground ref="dotBackground" :is-dark-mode="isDarkMode" />
 
-      <el-menu
-        mode="horizontal"
-        :default-active="activeMenu"
-        router
-        class="top-menu"
-      >
-        <el-menu-item index="/dashboard">
-          <el-icon><DataAnalysis /></el-icon>
-          <span>Dashboard</span>
-        </el-menu-item>
-        <el-menu-item index="/departments">
-          <el-icon><OfficeBuilding /></el-icon>
-          <span>Departments</span>
-        </el-menu-item>
-        <el-menu-item index="/upload">
-          <el-icon><UploadFilled /></el-icon>
-          <span>Upload</span>
-        </el-menu-item>
-        <el-menu-item index="/reports">
-          <el-icon><Document /></el-icon>
-          <span>Reports</span>
-        </el-menu-item>
-        <el-menu-item index="/useraccess">
-          <el-icon><User /></el-icon>
-          <span>User Access</span>
-        </el-menu-item>
-      </el-menu>
+    <HomeNavBar
+      mode="fixed"
+      :is-dark-mode="isDarkMode"
+      :mobile-menu-open="mobileMenuOpen"
+      :is-authenticated="true"
+      @update:isDarkMode="isDarkMode = $event"
+      @update:mobileMenuOpen="mobileMenuOpen = $event"
+      @navigate="navigate"
+      @logout="logout"
+    />
 
-      <el-dropdown trigger="click" class="user-actions">
-        <el-avatar :icon="UserFilled" />
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item @click="logout">Logout</el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
-    </el-header>
-
-    <el-main class="app-main">
+    <el-main class="app-main" @mousemove="handleShellPointerMove" @mouseleave="handleShellPointerLeave">
       <slot />
     </el-main>
 
-    <el-footer class="app-footer">© <span id="year">2026</span> CampusCashControl</el-footer>
+    <HomeFooter
+      :is-shell-mode="true"
+      :is-dark-mode="isDarkMode"
+      :current-year="currentYear"
+      :footer-links="footerLinks"
+      @link-click="handleFooterLink"
+    />
   </el-container>
 </template>
 
 <script>
 import { ElNotification } from "element-plus";
-import { DataAnalysis, OfficeBuilding, UploadFilled, Document, User, UserFilled } from "@element-plus/icons-vue";
+import HomeNavBar from "@/components/home/HomeNavBar.vue";
+import HomeFooter from "@/components/home/HomeFooter.vue";
+import HeroDotBackground from "@/components/home/HeroDotBackground.vue";
+import { setDarkMode, themeState } from "@/state/themeState";
 
 export default {
   name: "AppShell",
   components: {
-    DataAnalysis,
-    OfficeBuilding,
-    UploadFilled,
-    Document,
-    User,
+    HomeNavBar,
+    HomeFooter,
+    HeroDotBackground,
   },
   data() {
     return {
-      UserFilled,
+      mobileMenuOpen: false,
+      footerLinks: [
+        { title: "Features" },
+        { title: "Dashboard", path: "/dashboard" },
+        { title: "Departments", path: "/departments" },
+        { title: "Upload", path: "/upload" },
+        { title: "Reports", path: "/reports" },
+        { title: "User Access", path: "/useraccess" },
+      ],
     };
   },
   computed: {
-    activeMenu() {
-      const allowed = ["/dashboard", "/departments", "/upload", "/reports", "/useraccess"];
-      return allowed.includes(this.$route.path) ? this.$route.path : "/dashboard";
+    isDarkMode: {
+      get() {
+        return themeState.isDarkMode;
+      },
+      set(value) {
+        setDarkMode(value);
+      },
+    },
+    currentYear() {
+      return new Date().getFullYear();
     },
   },
-  mounted() {
-    document.getElementById("year").textContent = new Date().getFullYear();
-  },
   methods: {
+    navigate(path) {
+      this.mobileMenuOpen = false;
+      if (this.$route.path !== path) {
+        this.$router.push(path);
+      }
+    },
+    handleFooterLink(link) {
+      if (!link?.path) {
+        return;
+      }
+      this.navigate(link.path);
+    },
+    handleShellPointerMove(event) {
+      this.$refs.dotBackground?.onPointerMove?.(event);
+    },
+    handleShellPointerLeave() {
+      this.$refs.dotBackground?.onPointerLeave?.();
+    },
     logout() {
       sessionStorage.removeItem("access_token");
       sessionStorage.removeItem("refresh_token");
@@ -99,80 +106,39 @@ export default {
 
 <style scoped>
 .app-shell {
+  --footer-space: 118px;
+  --panel-bg: #ffffff;
+  --content-overlay: linear-gradient(160deg, rgba(255, 255, 255, 0.64), rgba(250, 251, 252, 0.78));
+  --content-separator: rgba(26, 38, 52, 0.12);
   min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: var(--panel-bg);
 }
 
-.app-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 10px 22px;
-  background: linear-gradient(120deg, #0a2840 0%, #144f72 100%);
-  box-shadow: 0 10px 30px rgba(10, 40, 64, 0.2);
-}
-
-.brand-link {
-  display: inline-flex;
-  align-items: center;
-}
-
-.brand-logo {
-  height: 38px;
-  object-fit: contain;
-}
-
-.top-menu {
-  flex: 1;
-  border-bottom: none;
-  background-color: transparent;
-}
-
-.top-menu :deep(.el-menu-item) {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #ecf6ff;
-  border-bottom: 2px solid transparent;
-  font-weight: 700;
-}
-
-.top-menu :deep(.el-menu-item.is-active) {
-  color: #ffffff;
-  border-bottom-color: #f0c95a;
-}
-
-.top-menu :deep(.el-menu-item:hover) {
-  color: #fef4cf;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.user-actions {
-  margin-left: auto;
-  cursor: pointer;
+.app-shell.is-dark {
+  --panel-bg: #000000;
+  --content-overlay: linear-gradient(160deg, rgba(11, 15, 24, 0.55), rgba(11, 15, 24, 0.72));
+  --content-separator: rgba(166, 188, 216, 0.22);
 }
 
 .app-main {
   flex: 1;
-  padding: 24px;
-  background: #ffffff;
-}
-
-.app-footer {
-  text-align: center;
-  color: #3f5166;
-  border-top: 1px solid #d8dfeb;
-  background: rgba(255, 255, 255, 0.45);
+  position: relative;
+  z-index: 10;
+  padding: 92px 24px calc(var(--footer-space) + 16px);
+  background: var(--content-overlay);
+  border-top: 1px solid var(--content-separator);
+  border-bottom: 1px solid var(--content-separator);
 }
 
 @media (max-width: 980px) {
-  .app-header {
-    flex-wrap: wrap;
-    row-gap: 8px;
+  .app-shell {
+    --footer-space: 146px;
   }
 
-  .top-menu {
-    order: 3;
-    width: 100%;
+  .app-main {
+    padding-top: 76px;
   }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <el-row justify="center">
+  <el-row justify="center" :class="['department-page-wrap', { 'is-dark': isDarkMode }]">
     <el-col :xs="24" :md="22" :lg="20">
       <el-skeleton :loading="showSkeleton" animated :rows="8">
         <template #template>
@@ -85,6 +85,7 @@
 import axios from "axios";
 import { ElMessageBox, ElNotification } from "element-plus";
 import { Edit, CloseBold, Check } from "@element-plus/icons-vue";
+import { themeState } from "@/state/themeState";
 
 const API_BASE_URL = "http://localhost:8000/api";
 
@@ -108,6 +109,11 @@ export default {
       },
       isEditing: false,
     };
+  },
+  computed: {
+    isDarkMode() {
+      return themeState.isDarkMode;
+    },
   },
   methods: {
     fetchDepartments() {
@@ -246,6 +252,35 @@ export default {
 </script>
 
 <style scoped>
+.department-page-wrap.is-dark :deep(.el-card) {
+  background: linear-gradient(160deg, rgba(11, 15, 24, 0.68), rgba(11, 15, 24, 0.82));
+  border-color: rgba(166, 188, 216, 0.24);
+}
+
+.department-page-wrap.is-dark :deep(.el-form-item__label) {
+  color: #d4e0f1;
+}
+
+.department-page-wrap.is-dark :deep(.el-input__wrapper) {
+  background: rgba(10, 14, 22, 0.74);
+  box-shadow: 0 0 0 1px rgba(166, 188, 216, 0.3) inset;
+}
+
+.department-page-wrap.is-dark :deep(.el-input__inner) {
+  color: #e7eefc;
+}
+
+.department-page-wrap.is-dark :deep(.el-table) {
+  --el-table-bg-color: rgba(9, 13, 20, 0.78);
+  --el-table-tr-bg-color: rgba(9, 13, 20, 0.78);
+  --el-table-expanded-cell-bg-color: rgba(9, 13, 20, 0.78);
+  --el-table-header-bg-color: rgba(14, 20, 30, 0.88);
+  --el-table-border-color: rgba(166, 188, 216, 0.22);
+  --el-table-text-color: #dce7f7;
+  --el-table-header-text-color: #eef4ff;
+  --el-fill-color-lighter: rgba(255, 255, 255, 0.02);
+}
+
 .department-card {
   border-radius: 14px;
 }
@@ -256,11 +291,24 @@ export default {
   color: #11334f;
 }
 
+.department-page-wrap.is-dark .card-header-row h2 {
+  color: #e7eefc;
+}
+
 .editor-form {
   margin-bottom: 20px;
 }
 
 .department-table {
   width: 100%;
+}
+
+.department-table :deep(.el-table) {
+  --el-table-row-hover-bg-color: transparent;
+}
+
+.department-table :deep(.el-table__body tr:hover > td.el-table__cell),
+.department-table :deep(.el-table__body tr.hover-row > td.el-table__cell) {
+  background-color: inherit !important;
 }
 </style>

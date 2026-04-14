@@ -1,5 +1,5 @@
 <template>
-  <el-row justify="center">
+  <el-row justify="center" :class="['user-access-page-wrap', { 'is-dark': isDarkMode }]">
     <el-col :xs="24" :md="18" :lg="14">
       <el-skeleton :loading="showSkeleton" animated :rows="6">
         <template #template>
@@ -27,6 +27,7 @@
 
 <script>
 import { User } from "@element-plus/icons-vue";
+import { themeState } from "@/state/themeState";
 
 export default {
   name: "UserAccessPage",
@@ -38,6 +39,11 @@ export default {
       showSkeleton: true,
     };
   },
+  computed: {
+    isDarkMode() {
+      return themeState.isDarkMode;
+    },
+  },
   mounted() {
     setTimeout(() => {
       this.showSkeleton = false;
@@ -47,6 +53,23 @@ export default {
 </script>
 
 <style scoped>
+.user-access-page-wrap.is-dark :deep(.el-card) {
+  background: linear-gradient(160deg, rgba(11, 15, 24, 0.68), rgba(11, 15, 24, 0.82));
+  border-color: rgba(166, 188, 216, 0.24);
+}
+
+.user-access-page-wrap.is-dark .access-card h2 {
+  color: #e7eefc;
+}
+
+.user-access-page-wrap.is-dark .access-card p {
+  color: #b7c5d8;
+}
+
+.user-access-page-wrap.is-dark :deep(.el-empty__description p) {
+  color: #c6d4e8;
+}
+
 .access-card {
   border-radius: 14px;
   text-align: center;

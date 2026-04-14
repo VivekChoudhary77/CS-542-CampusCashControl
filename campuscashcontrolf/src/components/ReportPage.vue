@@ -1,5 +1,5 @@
 <template>
-  <el-row justify="center">
+  <el-row justify="center" :class="['report-page-wrap', { 'is-dark': isDarkMode }]">
     <el-col :xs="24" :md="22" :lg="20">
       <el-skeleton :loading="showSkeleton" animated :rows="8">
         <template #template>
@@ -118,6 +118,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { ElNotification } from "element-plus";
 import { Search, Download } from "@element-plus/icons-vue";
+import { themeState } from "@/state/themeState";
 
 export default {
   name: "ReportPage",
@@ -151,6 +152,9 @@ export default {
     };
   },
   computed: {
+    isDarkMode() {
+      return themeState.isDarkMode;
+    },
     filteredReportData() {
       let res = this.displayedData.slice();
 
@@ -271,6 +275,38 @@ export default {
 </script>
 
 <style scoped>
+.report-page-wrap.is-dark :deep(.el-card) {
+  background: linear-gradient(160deg, rgba(11, 15, 24, 0.68), rgba(11, 15, 24, 0.82));
+  border-color: rgba(166, 188, 216, 0.24);
+}
+
+.report-page-wrap.is-dark :deep(.el-form-item__label) {
+  color: #d4e0f1;
+}
+
+.report-page-wrap.is-dark :deep(.el-input__wrapper),
+.report-page-wrap.is-dark :deep(.el-select__wrapper) {
+  background: rgba(10, 14, 22, 0.74);
+  box-shadow: 0 0 0 1px rgba(166, 188, 216, 0.3) inset;
+}
+
+.report-page-wrap.is-dark :deep(.el-input__inner),
+.report-page-wrap.is-dark :deep(.el-select__placeholder),
+.report-page-wrap.is-dark :deep(.el-select__selected-item) {
+  color: #e7eefc;
+}
+
+.report-page-wrap.is-dark :deep(.el-table) {
+  --el-table-bg-color: rgba(9, 13, 20, 0.78);
+  --el-table-tr-bg-color: rgba(9, 13, 20, 0.78);
+  --el-table-expanded-cell-bg-color: rgba(9, 13, 20, 0.78);
+  --el-table-header-bg-color: rgba(14, 20, 30, 0.88);
+  --el-table-border-color: rgba(166, 188, 216, 0.22);
+  --el-table-text-color: #dce7f7;
+  --el-table-header-text-color: #eef4ff;
+  --el-fill-color-lighter: rgba(255, 255, 255, 0.02);
+}
+
 .report-card {
   border-radius: 14px;
 }
@@ -279,6 +315,10 @@ export default {
   margin: 0;
   font-size: 1.35rem;
   color: #11334f;
+}
+
+.report-page-wrap.is-dark .report-card h2 {
+  color: #e7eefc;
 }
 
 .full-width {

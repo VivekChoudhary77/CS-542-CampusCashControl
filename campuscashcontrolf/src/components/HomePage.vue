@@ -50,6 +50,7 @@ import LoginForm from "@/components/LoginForm.vue";
 import HeroDotBackground from "@/components/home/HeroDotBackground.vue";
 import HomeNavBar from "@/components/home/HomeNavBar.vue";
 import HomeFooter from "@/components/home/HomeFooter.vue";
+import { setDarkMode, themeState } from "@/state/themeState";
 
 export default {
 	name: "HomePage",
@@ -63,7 +64,6 @@ export default {
 		return {
 			mobileMenuOpen: false,
 			loginDialogOpen: false,
-			isDarkMode: false,
 			footerLinks: [
 				{ title: "Features" },
 				{ title: "Dashboard", path: "/dashboard" },
@@ -75,6 +75,14 @@ export default {
 		};
 	},
 	computed: {
+		isDarkMode: {
+			get() {
+				return themeState.isDarkMode;
+			},
+			set(value) {
+				setDarkMode(value);
+			},
+		},
 		currentYear() {
 			return new Date().getFullYear();
 		},

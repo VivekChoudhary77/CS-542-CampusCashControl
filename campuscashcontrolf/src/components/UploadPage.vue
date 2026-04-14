@@ -1,5 +1,5 @@
 <template>
-  <el-row justify="center">
+  <el-row justify="center" :class="['upload-page-wrap', { 'is-dark': isDarkMode }]">
     <el-col :xs="24" :md="22" :lg="20">
       <el-skeleton :loading="showSkeleton" animated :rows="8">
         <template #template>
@@ -109,6 +109,7 @@
 import axios from "axios";
 import { ElNotification } from "element-plus";
 import { Download, UploadFilled } from "@element-plus/icons-vue";
+import { themeState } from "@/state/themeState";
 
 export default {
   name: "UploadPage",
@@ -138,6 +139,9 @@ export default {
     };
   },
   computed: {
+    isDarkMode() {
+      return themeState.isDarkMode;
+    },
     isFormValid() {
       return (
         this.selectedFile &&
@@ -296,6 +300,28 @@ export default {
 </script>
 
 <style scoped>
+.upload-page-wrap.is-dark :deep(.el-card) {
+  background: linear-gradient(160deg, rgba(11, 15, 24, 0.68), rgba(11, 15, 24, 0.82));
+  border-color: rgba(166, 188, 216, 0.24);
+}
+
+.upload-page-wrap.is-dark :deep(.el-form-item__label) {
+  color: #d4e0f1;
+}
+
+.upload-page-wrap.is-dark :deep(.el-input__wrapper),
+.upload-page-wrap.is-dark :deep(.el-select__wrapper),
+.upload-page-wrap.is-dark :deep(.el-upload-dragger) {
+  background: rgba(10, 14, 22, 0.74);
+  box-shadow: 0 0 0 1px rgba(166, 188, 216, 0.3) inset;
+}
+
+.upload-page-wrap.is-dark :deep(.el-input__inner),
+.upload-page-wrap.is-dark :deep(.el-select__placeholder),
+.upload-page-wrap.is-dark :deep(.el-select__selected-item) {
+  color: #e7eefc;
+}
+
 .upload-card {
   border-radius: 14px;
 }
@@ -311,6 +337,10 @@ export default {
   margin: 0;
   color: #11334f;
   font-size: 1.35rem;
+}
+
+.upload-page-wrap.is-dark .card-header-row h2 {
+  color: #e7eefc;
 }
 
 .card-header-row a {
@@ -343,9 +373,17 @@ export default {
   gap: 6px;
 }
 
+.upload-page-wrap.is-dark .upload-copy .title {
+  color: #e7eefc;
+}
+
 .upload-copy .hint {
   margin: 6px 0 0;
   color: #627789;
+}
+
+.upload-page-wrap.is-dark .upload-copy .hint {
+  color: #b7c5d8;
 }
 
 .status-alert {

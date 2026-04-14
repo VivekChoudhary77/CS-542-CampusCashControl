@@ -1,5 +1,5 @@
 <template>
-  <footer :class="['hero-footer', { 'is-dark': isDarkMode }]">
+  <footer :class="['hero-footer', { 'is-dark': isDarkMode, 'is-shell': isShellMode }]">
     <div class="footer-inner">
       <span class="footer-copy">© {{ currentYear }} CampusCashControl, All rights reserved.</span>
       <div class="footer-links" role="navigation" aria-label="Footer links">
@@ -21,6 +21,10 @@
 export default {
   name: "HomeFooter",
   props: {
+    isShellMode: {
+      type: Boolean,
+      default: false,
+    },
     isDarkMode: {
       type: Boolean,
       default: false,
@@ -53,6 +57,14 @@ export default {
 
 .hero-footer.is-dark {
   background: linear-gradient(160deg, rgba(11, 15, 24, 0.55), rgba(11, 15, 24, 0.72));
+}
+
+.hero-footer.is-shell {
+  border-top: 1px solid rgba(26, 38, 52, 0.12);
+}
+
+.hero-footer.is-shell.is-dark {
+  border-top: 1px solid rgba(166, 188, 216, 0.22);
 }
 
 .footer-inner {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card :class="['floating-nav', { 'is-dark': isDarkMode }]" shadow="always">
+    <el-card :class="['floating-nav', modeClass, { 'is-dark': isDarkMode }]" shadow="always">
       <div class="brand-wrap">
         <el-icon><WalletFilled /></el-icon>
         <span>CampusCashControl</span>
@@ -41,7 +41,18 @@
           @update:model-value="updateDarkMode"
         />
 
-        <el-button class="login-avatar-btn" circle aria-label="Open login" @click="$emit('open-login')">
+        <el-dropdown v-if="isAuthenticated" trigger="click" class="avatar-dropdown">
+          <el-button class="login-avatar-btn" circle aria-label="Open account actions">
+            <el-icon><UserFilled /></el-icon>
+          </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @click="$emit('logout')">Logout</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+
+        <el-button v-else class="login-avatar-btn" circle aria-label="Open login" @click="$emit('open-login')">
           <el-icon><UserFilled /></el-icon>
         </el-button>
       </div>
@@ -64,7 +75,8 @@
         <el-button text @click="emitNavigate('/upload')">Upload</el-button>
         <el-button text @click="emitNavigate('/reports')">Reports</el-button>
         <el-button text @click="emitNavigate('/useraccess')">User Access</el-button>
-        <el-button type="primary" @click="$emit('open-login')">Login</el-button>
+        <el-button v-if="isAuthenticated" type="danger" @click="$emit('logout')">Logout</el-button>
+        <el-button v-else type="primary" @click="$emit('open-login')">Login</el-button>
       </div>
     </el-drawer>
   </div>
@@ -97,6 +109,11 @@ export default {
     WalletFilled,
   },
   props: {
+    mode: {
+      type: String,
+      default: "floating",
+      validator: (value) => ["floating", "fixed"].includes(value),
+    },
     isDarkMode: {
       type: Boolean,
       default: false,
@@ -105,13 +122,22 @@ export default {
       type: Boolean,
       default: false,
     },
+    isAuthenticated: {
+      type: Boolean,
+      default: false,
+    },
   },
-  emits: ["update:isDarkMode", "update:mobileMenuOpen", "navigate", "open-login"],
+  emits: ["update:isDarkMode", "update:mobileMenuOpen", "navigate", "open-login", "logout"],
   data() {
     return {
       Sunny,
       Moon,
     };
+  },
+  computed: {
+    modeClass() {
+      return this.mode === "fixed" ? "fixed-nav" : "";
+    },
   },
   methods: {
     emitNavigate(path) {
@@ -141,10 +167,37 @@ export default {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
+.floating-nav.fixed-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: none;
+  width: 100%;
+  border-radius: 0;
+  z-index: 1200;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  border-bottom: 1px solid rgba(26, 38, 52, 0.12);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.64), rgba(250, 251, 252, 0.78));
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 .floating-nav.is-dark {
   border: 1px solid rgba(164, 181, 203, 0.35);
   background: rgba(8, 12, 19, 0.62);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
+.floating-nav.fixed-nav.is-dark {
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  border-bottom: 1px solid rgba(166, 188, 216, 0.22);
+  background: linear-gradient(160deg, rgba(11, 15, 24, 0.42), rgba(11, 15, 24, 0.58));
+  box-shadow: none;
 }
 
 .floating-nav :deep(.el-card__body) {
@@ -292,6 +345,10 @@ export default {
   justify-content: center;
   aspect-ratio: 1 / 1;
   flex: 0 0 34px;
+}
+
+.avatar-dropdown {
+  display: inline-flex;
 }
 
 .login-avatar-btn:hover {
