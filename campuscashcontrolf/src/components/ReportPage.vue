@@ -119,6 +119,7 @@ import { saveAs } from "file-saver";
 import { ElNotification } from "element-plus";
 import { Search, Download } from "@element-plus/icons-vue";
 import { themeState } from "@/state/themeState";
+import { apiUrl } from "@/config/api";
 
 export default {
   name: "ReportPage",
@@ -201,7 +202,7 @@ export default {
         type: "info",
       });
       axios
-        .get("http://localhost:8000/api/reports/", { params: this.filters })
+        .get(apiUrl("/reports/"), { params: this.filters })
         .then(({ data }) => {
           this.displayedData = data;
           this.currentPage = 1;
@@ -251,7 +252,7 @@ export default {
   mounted() {
     this.pageLoading = true;
     axios
-      .get("http://localhost:8000/api/departments/active/")
+      .get(apiUrl("/departments/active/"))
       .then(({ data }) => {
         this.departments = data.map((d) => d.name);
       })

@@ -64,8 +64,7 @@ campuscashcontrolf/node_modules/
 campuscashcontrolf/dist/
 campuscashcontrolf/.env.local
 campuscashcontrolf/.env.*
-campuscashcontrolf/package-lock.json
-campuscashcontrolf/package.json
+!campuscashcontrolf/.env.example
 
 # IDE Specific #
 .idea/
@@ -79,3 +78,4 @@ exported_data.csv
 # Local/temporary artifacts from recent work
 build-output.log
 package-lock.json
+!campuscashcontrolf/package-lock.json

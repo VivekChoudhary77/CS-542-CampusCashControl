@@ -110,6 +110,7 @@ import axios from "axios";
 import { ElNotification } from "element-plus";
 import { Download, UploadFilled } from "@element-plus/icons-vue";
 import { themeState } from "@/state/themeState";
+import { apiUrl } from "@/config/api";
 
 export default {
   name: "UploadPage",
@@ -239,7 +240,7 @@ export default {
       formData.append("year", this.metadata.year);
 
       axios
-        .post("http://localhost:8000/api/upload/", formData, {
+        .post(apiUrl("/upload/"), formData, {
           headers: { "Content-Type": "multipart/form-data" },
         })
         .then((response) => {
@@ -276,7 +277,7 @@ export default {
       type: "info",
     });
     axios
-      .get("http://localhost:8000/api/departments/active/")
+      .get(apiUrl("/departments/active/"))
       .then((res) => {
         this.departments = res.data.map((d) => d.name);
       })

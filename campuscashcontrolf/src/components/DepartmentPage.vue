@@ -86,8 +86,7 @@ import axios from "axios";
 import { ElMessageBox, ElNotification } from "element-plus";
 import { Edit, CloseBold, Check } from "@element-plus/icons-vue";
 import { themeState } from "@/state/themeState";
-
-const API_BASE_URL = "http://localhost:8000/api";
+import { apiUrl } from "@/config/api";
 
 export default {
   name: "DepartmentPage",
@@ -126,7 +125,7 @@ export default {
         });
       }
       axios
-        .get(`${API_BASE_URL}/departments/`)
+        .get(apiUrl("/departments/"))
         .then((res) => {
           this.departments = res.data;
         })
@@ -156,7 +155,7 @@ export default {
       const operation = this.isEditing ? "UPDATE" : "CREATE";
 
       axios
-        .post(`${API_BASE_URL}/manage-department/`, {
+        .post(apiUrl("/manage-department/"), {
           operation,
           id: this.form.id,
           name: this.form.name,
@@ -214,7 +213,7 @@ export default {
 
       this.tableLoading = true;
       axios
-        .post(`${API_BASE_URL}/manage-department/`, {
+        .post(apiUrl("/manage-department/"), {
           operation,
           id: dept.id,
           name: dept.name,

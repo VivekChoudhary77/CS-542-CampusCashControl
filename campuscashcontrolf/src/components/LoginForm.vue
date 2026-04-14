@@ -128,6 +128,7 @@
 import axios from 'axios';
 import { ElNotification } from "element-plus";
 import { WalletFilled } from "@element-plus/icons-vue";
+import { apiUrl } from "@/config/api";
 
 export default {
   props: {
@@ -226,7 +227,7 @@ export default {
         type: "primary",
       });
 
-      axios.post('http://localhost:8000/api/token/', {
+      axios.post(apiUrl('/token/'), {
         username: this.email,  // using email as username
         password: this.password,
       })  
@@ -266,7 +267,7 @@ export default {
     },
     // Real signup: call our /api/signup/ endpoint.
     handleSignup() {
-      axios.post('http://localhost:8000/api/signup/', {
+      axios.post(apiUrl('/signup/'), {
         email: this.email,
         password: this.password,
         confirm_password: this.confirmPassword,
