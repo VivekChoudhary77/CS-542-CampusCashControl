@@ -292,9 +292,21 @@ export default {
         this.pageLoading = false;
       });
 
-    setTimeout(() => {
+    this.skeletonTimeoutId = setTimeout(() => {
       this.showSkeleton = false;
+      this.skeletonTimeoutId = null;
     }, 360);
+  },
+  beforeUnmount() {
+    if (this.skeletonTimeoutId) {
+      clearTimeout(this.skeletonTimeoutId);
+      this.skeletonTimeoutId = null;
+    }
+
+    if (this.successTimeoutId) {
+      clearTimeout(this.successTimeoutId);
+      this.successTimeoutId = null;
+    }
   },
 };
 </script>
