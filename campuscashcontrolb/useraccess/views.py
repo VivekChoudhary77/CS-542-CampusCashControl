@@ -1,7 +1,13 @@
 from django.contrib.auth.models import User
-from rest_framework import generics
+from rest_framework import generics, serializers
 from rest_framework.permissions import IsAuthenticated
-from .serializers import AuthUserSerializer
+
+
+class AuthUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("username",)
+
 
 class AuthUserList(generics.ListAPIView):
     """
