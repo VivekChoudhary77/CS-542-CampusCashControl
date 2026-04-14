@@ -168,11 +168,12 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-STATICFILES_DIRS = [
-    BASE_DIR / "public_exports",
-    # you can add other dirs here if needed
-]
+PUBLIC_EXPORTS_DIR = BASE_DIR / "public_exports"
 
+STATICFILES_DIRS = []
+if PUBLIC_EXPORTS_DIR.exists():
+    STATICFILES_DIRS.append(PUBLIC_EXPORTS_DIR)
+# you can add other dirs here if needed
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
