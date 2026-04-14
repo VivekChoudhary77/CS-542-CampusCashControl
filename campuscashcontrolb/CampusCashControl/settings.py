@@ -10,10 +10,28 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def load_env_file(env_path: Path) -> None:
+    if not env_path.exists():
+        return
+
+    for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        os.environ.setdefault(key, value)
+
+
+load_env_file(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -36,6 +54,8 @@ INSTALLED_APPS = [
     'api',
     'accounts',
     'departments',
+    'useraccess',
+    'LandingP',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -102,12 +122,12 @@ WSGI_APPLICATION = "CampusCashControl.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "CampusCashControl",
-        "USER": "myuser",
-        "PASSWORD": "Admin@1234",
-        'HOST': 'localhost',
-        'PORT': '5432',   
+        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.postgresql"),
+        "NAME": os.getenv("DB_NAME", "CampusCashControl"),
+        "USER": os.getenv("DB_USER", "myuser"),
+        "PASSWORD": os.getenv("DB_PASSWORD", ""),
+        "HOST": os.getenv("DB_HOST", "localhost"),
+        "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
 
@@ -148,6 +168,12 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+PUBLIC_EXPORTS_DIR = BASE_DIR / "public_exports"
+
+STATICFILES_DIRS = []
+if PUBLIC_EXPORTS_DIR.exists():
+    STATICFILES_DIRS.append(PUBLIC_EXPORTS_DIR)
+# you can add other dirs here if needed
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

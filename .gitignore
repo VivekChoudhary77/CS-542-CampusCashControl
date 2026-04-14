@@ -6,18 +6,58 @@ Thumbs.db
 **/__pycache__/
 *.py[cod]
 *$py.class
+.Python
+
+# Python tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.hypothesis/
+.tox/
+.nox/
+.pytype/
+.pylint.d/
+dmypy.json
+.dmypy.json
+__pypackages__/
+
+# Python packaging/build artifacts
+.eggs/
+*.egg-info/
+pip-wheel-metadata/
+build/
+dist/
+
+# Coverage/cache artifacts from Python test runs
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+*.py,cover
+
+# Jupyter Python notebook checkpoints
+.ipynb_checkpoints/
 
 # Backend (Django) #
 campuscashcontrolb/api/__pycache__/
 campuscashcontrolb/*.pyc
 campuscashcontrolb/*.sqlite3
 campuscashcontrolb/myvenv/  # Or your virtual environment name
+campuscashcontrolb/.conda-backend/
 campuscashcontrolb/.venv/
 campuscashcontrolb/venv/
 campuscashcontrolb/*.log
 campuscashcontrolb/local_settings.py
 campuscashcontrolb/*.env
 campuscashcontrolb/db.sqlite3
+campuscashcontrolb/.env.example
+campuscashcontrolb/.env
+
+# Conda environments
+.conda/
+.conda-backend/
 
 # Frontend (Vue.js) #
 campuscashcontrolf/node_modules/
@@ -34,3 +74,8 @@ campuscashcontrolf/package.json
 # Other #
 *.swp
 *.bak
+exported_data.csv
+
+# Local/temporary artifacts from recent work
+build-output.log
+package-lock.json

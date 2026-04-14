@@ -1,0 +1,20 @@
+:root {
+  --el-color-primary: #1f5f8b;
+  --el-color-success: #2d8f6f;
+  --el-color-warning: #c58f22;
+  --el-color-danger: #c74b4b;
+  --el-border-radius-base: 10px;
+  --el-border-radius-small: 8px;
+  --el-border-radius-round: 20px;
+  --el-font-size-base: 14px;
+  --el-bg-color: #ffffff;
+  --el-bg-color-overlay: #ffffff;
+}
+
+.el-card {
+  background-color: #ffffff;
+}
+
+.el-main {
+  background: #ffffff;
+}

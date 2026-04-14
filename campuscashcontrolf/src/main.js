@@ -1,10 +1,11 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap"; // Ensure Bootstrap JS is included
-import "@fortawesome/fontawesome-free/css/all.min.css"; // Import FontAwesome for icons
+import ElementPlus from "element-plus";
+import "element-plus/dist/index.css";
+import "./assets/element-theme.css";
 
 const app = createApp(App);
+app.use(ElementPlus);
 app.use(router);
 app.mount("#app");

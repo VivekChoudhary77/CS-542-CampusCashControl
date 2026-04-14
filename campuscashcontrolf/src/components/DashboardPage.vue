@@ -1,149 +1,137 @@
 <template>
-  <div class="dashboard">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="container-fluid">
-        <router-link class="navbar-brand" to="/dashboard">
-          <img src="@/assets/CCC Dashboard Logo.png" alt="CampusCashControl" class="navbar-logo" />
-        </router-link>
-        <!-- Navbar Links -->
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <router-link class="nav-link" to="/departments">Departments</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link" to="/upload">Upload</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link" to="/reports">Reports</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link" to="/UserAccess">User Access</router-link>
-          </li>
-        </ul>
-        <!-- User Logo (Circular, no arrow) -->
-        <div class="user-logo" ref="userLogo" @click.stop="toggleDropdown">
-          <i class="fas fa-user"></i>
-          <div v-show="dropdownVisible" class="logout-menu">
-            <button class="logout-btn" @click="logout">Logout</button>
-          </div>
-        </div>
-      </div>
-    </nav>
+  <div :class="['dashboard-wrap', { 'is-dark': isDarkMode }]">
+    <el-skeleton :loading="showSkeleton" animated :rows="8">
+      <template #template>
+        <el-card shadow="never" class="hero-card">
+          <el-skeleton-item variant="h1" style="width: 44%; height: 28px;" />
+          <el-skeleton-item variant="text" style="width: 60%; margin-top: 12px;" />
+        </el-card>
+        <el-card class="tableau-card" shadow="never" style="margin-top: 18px;">
+          <el-skeleton-item variant="rect" style="width: 100%; height: 64vh; border-radius: 10px;" />
+        </el-card>
+      </template>
 
-    <!-- Main Content Area -->
-    <div class="content container">
-      <h2>Welcome to the Dashboard</h2>
-      <p>This is your dashboard content</p>
-    </div>
+      <template #default>
+        <el-space direction="vertical" fill :size="18" class="dashboard-content">
+          <el-card shadow="never" class="hero-card">
+            <h2>Data Visualization Dashboard</h2>
+            <p>Interactive analytics for campus financial performance.</p>
+          </el-card>
 
-    <!-- Footer -->
-    <footer class="footer text-center">
-      <p>&copy; 2025 CampusCashControl</p>
-    </footer>
+          <el-card class="tableau-card" shadow="hover">
+            <div class="tableau-container">
+              <iframe
+                src="https://public.tableau.com/views/CampusCashControl/Dashboard2?:embed=y&:showVizHome=no&:toolbar=yes"
+                frameborder="0"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </el-card>
+        </el-space>
+      </template>
+    </el-skeleton>
   </div>
 </template>
 
 <script>
+import { themeState } from "@/state/themeState";
+
 export default {
   name: "DashboardPage",
   data() {
     return {
-      dropdownVisible: false,
+      showSkeleton: true,
     };
   },
-  methods: {
-    toggleDropdown() {
-      this.dropdownVisible = !this.dropdownVisible;
+  computed: {
+    isDarkMode() {
+      return themeState.isDarkMode;
     },
-    logout() {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      localStorage.removeItem("authenticated");
-      this.$router.replace({ name: "home" });
-    },
-    handleClickOutside(event) {
-      if (this.$refs.userLogo && !this.$refs.userLogo.contains(event.target)) {
-        this.dropdownVisible = false;
-      }
-    }
   },
   mounted() {
-    document.addEventListener("click", this.handleClickOutside);
-    // Push a state and override back button behavior
+    setTimeout(() => {
+      this.showSkeleton = false;
+    }, 380);
+
+    // Keep users on authenticated screens after login.
     window.history.pushState(null, "", window.location.href);
     window.onpopstate = () => {
       window.history.go(1);
     };
   },
   beforeUnmount() {
-    document.removeEventListener("click", this.handleClickOutside);
-    // Restore default back button
     window.onpopstate = null;
-  }
+  },
 };
 </script>
 
 <style scoped>
-.dashboard {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-.navbar-logo {
-  height: 40px;
-  object-fit: contain;
-}
-.content {
-  flex: 1;
-  margin-top: 20px;
-}
-.navbar {
-  padding: 10px 20px;
-}
-.container {
-  text-align: center;
-}
-.user-logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: white;
-  border: 2px solid #ccc;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  position: relative;
-}
-.user-logo i {
-  font-size: 18px;
-  color: #333;
-}
-.logout-menu {
-  position: absolute;
-  top: 45px;
-  right: 0;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-}
-.logout-btn {
-  background: none;
-  border: none;
-  padding: 10px 15px;
+.dashboard-wrap {
   width: 100%;
-  text-align: left;
-  cursor: pointer;
+  max-width: 1280px;
+  margin: 0 auto;
 }
-.logout-btn:hover {
-  background-color: #f8f9fa;
+
+.dashboard-content {
+  width: 100%;
 }
-.footer {
-  background-color: #f8f9fa;
-  padding: 10px;
-  border-top: 1px solid #e7e7e7;
+
+.hero-card h2 {
+  margin: 0;
+  color: #0f3350;
+}
+
+.hero-card p {
+  margin: 8px 0 0;
+  color: #4b5e75;
+}
+
+.tableau-card {
+  border-radius: 14px;
+}
+
+.dashboard-wrap.is-dark :deep(.el-card) {
+  background: linear-gradient(160deg, rgba(11, 15, 24, 0.68), rgba(11, 15, 24, 0.82));
+  border-color: rgba(166, 188, 216, 0.24);
+}
+
+.dashboard-wrap.is-dark .hero-card h2 {
+  color: #e7eefc;
+}
+
+.dashboard-wrap.is-dark .hero-card p {
+  color: #b7c5d8;
+}
+
+.dashboard-wrap.is-dark .tableau-container {
+  border-color: rgba(166, 188, 216, 0.24);
+  background: rgba(5, 8, 14, 0.55);
+}
+
+.tableau-container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  position: relative;
+  min-height: 66vh;
+  height: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid #d8e3f0;
+}
+
+.tableau-container iframe {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .tableau-container {
+    min-height: 56vh;
+  }
 }
 </style>

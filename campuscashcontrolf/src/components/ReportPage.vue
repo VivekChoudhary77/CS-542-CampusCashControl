@@ -1,204 +1,166 @@
 <template>
-  <div class="report d-flex flex-column min-vh-100">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="container-fluid">
-        <router-link class="navbar-brand" to="/dashboard">
-          <img src="@/assets/CCC Dashboard Logo.png" alt="CampusCashControl" class="navbar-logo" />
-        </router-link>
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><router-link class="nav-link" to="/departments">Departments</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/upload">Upload</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/reports">Reports</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/UserAccess">User Access</router-link></li>
-        </ul>
-        <div class="user-logo" ref="userLogo" @click.stop="toggleDropdown">
-          <i class="fas fa-user"></i>
-          <div v-show="dropdownVisible" class="logout-menu">
-            <button class="logout-btn" @click="logout">Logout</button>
-          </div>
-        </div>
-      </div>
-    </nav>
+  <el-row justify="center" :class="['report-page-wrap', { 'is-dark': isDarkMode }]">
+    <el-col :xs="24" :md="22" :lg="20">
+      <el-skeleton :loading="showSkeleton" animated :rows="8">
+        <template #template>
+          <el-card shadow="never" class="report-card">
+            <el-skeleton-item variant="h1" style="width: 38%; height: 28px;" />
+            <el-skeleton-item variant="rect" style="width: 100%; height: 60px; margin-top: 16px;" />
+            <el-skeleton-item variant="rect" style="width: 100%; height: 360px; margin-top: 16px;" />
+          </el-card>
+        </template>
 
-    <!-- Main Content Area -->
-    <div class="content container flex-grow-1 mt-4">
-      <h2 class="mt-4 mb-4">Financial Reports</h2>
+        <template #default>
+          <el-card shadow="hover" class="report-card" v-loading="pageLoading">
+            <template #header>
+              <h2>Financial Reports</h2>
+            </template>
 
-      <!-- Filter Controls -->
-      <div class="row mb-4">
-        <div class="col-md-4 mb-3">
-          <label for="department" class="form-label">Department</label>
-          <select id="department" class="form-select" v-model="filters.department">
-            <option value="all_departments">All Departments</option>
-            <option v-for="dept in departments" :key="dept" :value="dept">
-              {{ dept }}
-            </option>
-          </select>
-        </div>
-        <div class="col-md-4 mb-3">
-          <label for="month" class="form-label">Month</label>
-          <select id="month" class="form-select" v-model="filters.month">
-            <option value="all_months">All Months</option>
-            <option v-for="name in months" :key="name" :value="name">
-              {{ name }}
-            </option>
-          </select>
-        </div>
-        <div class="col-md-4 mb-3">
-          <label for="year" class="form-label">Financial Year</label>
-          <select id="year" class="form-select" v-model="filters.year">
-            <option value="all_years">All Years</option>
-            <option v-for="yr in years" :key="yr" :value="yr">
-              {{ yr }}
-            </option>
-          </select>
-        </div>
-      </div>
+            <el-row :gutter="14" class="filters">
+              <el-col :xs="24" :md="8">
+                <el-form-item label="Department">
+                  <el-select v-model="filters.department" class="full-width">
+                    <el-option label="All Departments" value="all_departments" />
+                    <el-option v-for="dept in departments" :key="dept" :label="dept" :value="dept" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :xs="24" :md="8">
+                <el-form-item label="Month">
+                  <el-select v-model="filters.month" class="full-width">
+                    <el-option label="All Months" value="all_months" />
+                    <el-option v-for="month in months" :key="month" :label="month" :value="month" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :xs="24" :md="8">
+                <el-form-item label="Financial Year">
+                  <el-select v-model="filters.year" class="full-width">
+                    <el-option label="All Years" value="all_years" />
+                    <el-option v-for="yr in years" :key="yr" :label="String(yr)" :value="yr" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
 
-      <!-- Action Buttons -->
-      <div class="row mb-4">
-        <div class="col-12 d-flex gap-2 justify-content-center">
-          <button class="btn btn-dark" @click="displayReport">
-            <i class="fas fa-search me-2"></i> Display Report
-          </button>
-          <button class="btn btn-outline-dark" @click="downloadReport" :disabled="!displayedData.length">
-            <i class="fas fa-download me-2"></i> Download Report
-          </button>
-        </div>
-      </div>
+            <div class="actions">
+              <el-button type="primary" :loading="tableLoading" @click="displayReport">
+                <el-icon><Search /></el-icon>
+                Display Report
+              </el-button>
+              <el-button @click="downloadReport" :disabled="!displayedData.length">
+                <el-icon><Download /></el-icon>
+                Download Report
+              </el-button>
+            </div>
 
-      <!-- Search & Info -->
-      <div class="row mb-3" v-if="displayedData.length">
-        <div class="col-md-6 text-start">
-          <div class="input-group">
-            <span class="input-group-text"><i class="fas fa-search"></i></span>
-            <input type="text" class="form-control" placeholder="Search reports…" v-model="searchQuery" />
-          </div>
-        </div>
-        <div class="col-md-6 text-end">
-          <span class="badge bg-info">{{ filteredReportData.length }} records found</span>
-        </div>
-      </div>
+            <div v-if="displayedData.length" class="toolbar">
+              <el-input v-model="searchQuery" placeholder="Search reports" clearable class="search-input" />
+              <el-tag type="info">{{ filteredReportData.length }} records found</el-tag>
+            </div>
 
-      <!-- Report Table -->
-      <div class="table-responsive">
-        <div v-if="!hasSearched" class="alert alert-info mt-4">
-          <i class="fas fa-info-circle me-2"></i>
-          Please select your filter criteria and click "Display Report" to view financial data.
-        </div>
-        
-        <table v-if="hasSearched && displayedData.length" class="table table-striped table-hover">
-          <thead class="table-light">
-            <tr>
-              <th @click="sortBy('department')" class="sortable">
-                Department <i :class="getSortIcon('department')"></i>
-              </th>
-              <th @click="sortBy('item')" class="sortable">
-                Item <i :class="getSortIcon('item')"></i>
-              </th>
-              <th @click="sortBy('revenue')" class="sortable">
-                Revenue <i :class="getSortIcon('revenue')"></i>
-              </th>
-              <th @click="sortBy('month')" class="sortable">
-                Month <i :class="getSortIcon('month')"></i>
-              </th>
-              <th @click="sortBy('year')" class="sortable">
-                Financial Year <i :class="getSortIcon('year')"></i>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(row, idx) in paginatedReportData" :key="idx">
-              <td>{{ row.department }}</td>
-              <td>{{ row.item }}</td>
-              <td>${{ row.revenue.toLocaleString() }}</td>
-              <td>{{ row.month }}</td>
-              <td>{{ row.year }}</td>
-            </tr>
-          </tbody>
-        </table>
+            <el-alert
+              v-if="!hasSearched"
+              type="info"
+              :closable="false"
+              show-icon
+              title="Please select filter criteria and click Display Report to view financial data."
+            />
 
-        <div v-if="hasSearched && !displayedData.length" class="alert alert-warning mt-4">
-          <i class="fas fa-exclamation-circle me-2"></i>
-          No records found for the selected criteria.
-        </div>
-      </div>
+            <div v-if="hasSearched" v-loading="tableLoading" class="report-table-wrap">
+              <el-table
+                v-if="displayedData.length"
+                :data="paginatedReportData"
+                stripe
+                border
+                @sort-change="handleSortChange"
+                class="report-table"
+              >
+                <el-table-column prop="department" label="Department" sortable="custom" min-width="170" />
+                <el-table-column prop="item" label="Item" sortable="custom" min-width="210" />
+                <el-table-column prop="revenue" label="Revenue" sortable="custom" min-width="140">
+                  <template #default="scope">${{ Number(scope.row.revenue).toLocaleString() }}</template>
+                </el-table-column>
+                <el-table-column prop="month" label="Month" sortable="custom" min-width="130" />
+                <el-table-column prop="year" label="Financial Year" sortable="custom" min-width="130" />
+              </el-table>
 
-      <!-- Pagination -->
-      <nav v-if="displayedData.length && totalPages > 1" class="mt-4">
-        <ul class="pagination justify-content-center">
-          <!-- Previous -->
-          <li class="page-item" :class="{ disabled: currentPage === 1 }">
-            <a class="page-link" href="#" @click.prevent="currentPage > 1 && currentPage--">
-              ‹ Previous
-            </a>
-          </li>
+              <el-alert
+                v-if="!tableLoading && !displayedData.length"
+                type="warning"
+                :closable="false"
+                show-icon
+                title="No records found for the selected criteria."
+                class="empty-alert"
+              />
+            </div>
 
-          <!-- Page numbers -->
-          <li v-for="p in paginationRange" :key="p" class="page-item" :class="{ active: currentPage === p }">
-            <a class="page-link" href="#" @click.prevent="currentPage = p">
-              {{ p }}
-            </a>
-          </li>
-
-          <!-- Next -->
-          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-            <a class="page-link" href="#" @click.prevent="currentPage < totalPages && currentPage++">
-              Next ›
-            </a>
-          </li>
-        </ul>
-      </nav>
-
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer text-center">
-      <p>&copy; 2025 CampusCashControl</p>
-    </footer>
-  </div>
+            <div v-if="displayedData.length && totalPages > 1" class="pagination-wrap">
+              <el-pagination
+                background
+                layout="prev, pager, next"
+                :total="filteredReportData.length"
+                :current-page="currentPage"
+                :page-size="itemsPerPage"
+                @current-change="currentPage = $event"
+              />
+            </div>
+          </el-card>
+        </template>
+      </el-skeleton>
+    </el-col>
+  </el-row>
 </template>
 
 <script>
-import axios from 'axios';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
+import axios from "axios";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { ElNotification } from "element-plus";
+import { Search, Download } from "@element-plus/icons-vue";
+import { themeState } from "@/state/themeState";
 
 export default {
   name: "ReportPage",
+  components: {
+    Search,
+    Download,
+  },
   data() {
     return {
-      dropdownVisible: false,
+      showSkeleton: true,
+      pageLoading: false,
+      tableLoading: false,
       hasSearched: false,
       displayedData: [],
       filters: {
-        department: 'all_departments',
-        month: 'all_months',
-        year: 'all_years'
+        department: "all_departments",
+        month: "all_months",
+        year: "all_years",
       },
-      searchQuery: '',
-      // no default sort
+      searchQuery: "",
       currentSort: null,
-      currentSortDir: 'asc',
+      currentSortDir: "asc",
       currentPage: 1,
       itemsPerPage: 10,
       departments: [],
       months: [
         "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+        "July", "August", "September", "October", "November", "December",
       ],
-      years: Array.from({ length: 2027 - 2023 + 1 }, (_, i) => 2023 + i)
+      years: Array.from({ length: 2027 - 2023 + 1 }, (_, i) => 2023 + i),
     };
   },
   computed: {
+    isDarkMode() {
+      return themeState.isDarkMode;
+    },
     filteredReportData() {
       let res = this.displayedData.slice();
 
-      // client‐side search
       if (this.searchQuery) {
         const q = this.searchQuery.toLowerCase();
-        res = res.filter(r =>
+        res = res.filter((r) =>
           r.department.toLowerCase().includes(q) ||
           r.item.toLowerCase().includes(q) ||
           String(r.revenue).includes(q) ||
@@ -207,20 +169,18 @@ export default {
         );
       }
 
-      // only sort if user clicked
       if (!this.currentSort) return res;
 
-      const dir = this.currentSortDir === 'asc' ? 1 : -1;
+      const dir = this.currentSortDir === "asc" ? 1 : -1;
       return res.slice().sort((a, b) => {
-        if (this.currentSort === 'month') {
+        if (this.currentSort === "month") {
           const iA = this.months.indexOf(a.month);
           const iB = this.months.indexOf(b.month);
           return (iA - iB) * dir;
         }
-        if (this.currentSort === 'revenue') return (a.revenue - b.revenue) * dir;
-        if (this.currentSort === 'year') return (a.year - b.year) * dir;
-        // string fields:
-        return a[this.currentSort].localeCompare(b[this.currentSort]) * dir;
+        if (this.currentSort === "revenue") return (a.revenue - b.revenue) * dir;
+        if (this.currentSort === "year") return (a.year - b.year) * dir;
+        return String(a[this.currentSort]).localeCompare(String(b[this.currentSort])) * dir;
       });
     },
     totalPages() {
@@ -230,218 +190,189 @@ export default {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       return this.filteredReportData.slice(start, start + this.itemsPerPage);
     },
-    paginationRange() {
-      const range = [];
-      const maxVisible = 5;
-      let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
-      let end = Math.min(this.totalPages, start + maxVisible - 1);
-      if (end - start + 1 < maxVisible) start = Math.max(1, end - maxVisible + 1);
-      for (let i = start; i <= end; i++) range.push(i);
-      return range;
-    }
   },
   methods: {
-    toggleDropdown() {
-      this.dropdownVisible = !this.dropdownVisible;
-    },
-    logout() {
-      localStorage.clear();
-      this.$router.replace({ name: "home" });
-    },
-    handleClickOutside(e) {
-      if (this.$refs.userLogo && !this.$refs.userLogo.contains(e.target)) {
-        this.dropdownVisible = false;
-      }
-    },
     displayReport() {
       this.hasSearched = true;
-      axios.get("http://localhost:8000/api/reports/", { params: this.filters })
+      this.tableLoading = true;
+      ElNotification({
+        title: "Loading",
+        message: "Fetching report data...",
+        type: "info",
+      });
+      axios
+        .get("http://localhost:8000/api/reports/", { params: this.filters })
         .then(({ data }) => {
           this.displayedData = data;
           this.currentPage = 1;
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
-          alert("Error fetching report data");
+          ElNotification({
+            title: "Fetch failed",
+            message: "Error fetching report data.",
+            type: "error",
+          });
+        })
+        .finally(() => {
+          this.tableLoading = false;
         });
     },
     downloadReport() {
-      const rows = this.filteredReportData.map(r => ({
+      const rows = this.filteredReportData.map((r) => ({
         Department: r.department,
         Item: r.item,
         Revenue: r.revenue,
         Month: r.month,
-        Year: r.year
+        Year: r.year,
       }));
+
       const ws = XLSX.utils.json_to_sheet(rows);
-      ws['!cols'] = [
-        { wch: 25 }, { wch: 30 }, { wch: 15 }, { wch: 12 }, { wch: 10 }
-      ];
+      ws["!cols"] = [{ wch: 25 }, { wch: 30 }, { wch: 15 }, { wch: 12 }, { wch: 10 }];
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Report');
-      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'financial_report.xlsx');
+      XLSX.utils.book_append_sheet(wb, ws, "Report");
+      const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      saveAs(new Blob([wbout], { type: "application/octet-stream" }), "financial_report.xlsx");
+      ElNotification({
+        title: "Download ready",
+        message: "Report downloaded.",
+        type: "primary",
+      });
     },
-    sortBy(col) {
-      if (this.currentSort === col) {
-        this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
-      } else {
-        this.currentSort = col;
-        this.currentSortDir = 'asc';
+    handleSortChange({ prop, order }) {
+      if (!order) {
+        this.currentSort = null;
+        return;
       }
+      this.currentSort = prop;
+      this.currentSortDir = order === "ascending" ? "asc" : "desc";
     },
-    getSortIcon(col) {
-      if (this.currentSort === col) {
-        return this.currentSortDir === 'asc'
-          ? 'fas fa-sort-up'
-          : 'fas fa-sort-down';
-      }
-      // always show the up/down sort icon
-      return 'fas fa-sort';
-    }
   },
   mounted() {
-    document.addEventListener("click", this.handleClickOutside);
+    this.pageLoading = true;
+    axios
+      .get("http://localhost:8000/api/departments/active/")
+      .then(({ data }) => {
+        this.departments = data.map((d) => d.name);
+      })
+      .catch((err) => {
+        console.error("Could not load departments:", err);
+      })
+      .finally(() => {
+        this.pageLoading = false;
+      });
 
-    // 1) load departments
-    axios.get("http://localhost:8000/api/departments/active/")
-      .then(({ data }) => this.departments = data.map(d => d.name))
-      .catch(err => console.error("Could not load departments:", err));
-  },
-  beforeUnmount() {
-    document.removeEventListener("click", this.handleClickOutside);
+    setTimeout(() => {
+      this.showSkeleton = false;
+    }, 360);
   },
   watch: {
     searchQuery() {
       this.currentPage = 1;
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
-.report {
+.report-page-wrap.is-dark :deep(.el-card) {
+  background: linear-gradient(160deg, rgba(11, 15, 24, 0.68), rgba(11, 15, 24, 0.82));
+  border-color: rgba(166, 188, 216, 0.24);
+}
+
+.report-page-wrap.is-dark :deep(.el-form-item__label) {
+  color: #d4e0f1;
+}
+
+.report-page-wrap.is-dark :deep(.el-input__wrapper),
+.report-page-wrap.is-dark :deep(.el-select__wrapper) {
+  background: rgba(10, 14, 22, 0.74);
+  box-shadow: 0 0 0 1px rgba(166, 188, 216, 0.3) inset;
+}
+
+.report-page-wrap.is-dark :deep(.el-input__inner),
+.report-page-wrap.is-dark :deep(.el-select__placeholder),
+.report-page-wrap.is-dark :deep(.el-select__selected-item) {
+  color: #e7eefc;
+}
+
+.report-page-wrap.is-dark :deep(.el-table) {
+  --el-table-bg-color: rgba(9, 13, 20, 0.78);
+  --el-table-tr-bg-color: rgba(9, 13, 20, 0.78);
+  --el-table-expanded-cell-bg-color: rgba(9, 13, 20, 0.78);
+  --el-table-header-bg-color: rgba(14, 20, 30, 0.88);
+  --el-table-border-color: rgba(166, 188, 216, 0.22);
+  --el-table-text-color: #dce7f7;
+  --el-table-header-text-color: #eef4ff;
+  --el-fill-color-lighter: rgba(255, 255, 255, 0.02);
+}
+
+.report-card {
+  border-radius: 14px;
+}
+
+.report-card h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  color: #11334f;
+}
+
+.report-page-wrap.is-dark .report-card h2 {
+  color: #e7eefc;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.actions {
+  margin-bottom: 14px;
   display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  gap: 10px;
 }
 
-.navbar-logo {
-  height: 40px;
-  object-fit: contain;
+.actions :deep(.el-button) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.content {
-  flex: 1;
-  margin-top: 20px;
-}
-
-.navbar {
-  padding: 10px 20px;
-}
-
-.container {
-  text-align: center;
-}
-
-.user-logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #fff;
-  border: 2px solid #ccc;
+.toolbar {
+  margin-bottom: 14px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.search-input {
+  max-width: 380px;
+}
+
+.report-table,
+.empty-alert {
+  margin-top: 12px;
+}
+
+.report-table-wrap {
+  min-height: 220px;
+}
+
+.pagination-wrap {
+  margin-top: 16px;
+  display: flex;
   justify-content: center;
-  cursor: pointer;
-  position: relative;
 }
 
-.user-logo i {
-  font-size: 18px;
-  color: #333;
-}
-
-.logout-menu {
-  position: absolute;
-  top: 45px;
-  right: 0;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-}
-
-.logout-btn {
-  background: none;
-  border: none;
-  padding: 10px 15px;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-}
-
-.logout-btn:hover {
-  background: #f8f9fa;
-}
-
-.footer {
-  background: #f8f9fa;
-  padding: 10px;
-  border-top: 1px solid #e7e7e7;
-  margin-top: 2rem;
-}
-
-.table {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border-radius: 5px;
-}
-
-.table thead th {
-  background: #f8f9fa;
-  border-bottom: 2px solid #dee2e6;
-}
-
-.sortable {
-  cursor: pointer;
-}
-
-.sortable:hover {
-  background: #e9ecef;
-}
-
-input.form-control,
-.form-select {
-  border-radius: 4px;
-  border: 1px solid #ced4da;
-  padding: .375rem .75rem;
-}
-
-.badge {
-  font-weight: 500;
-  padding: .5em .75em;
-}
-
-.pagination .page-link {
-  color: #0d1a38;
-  border: 1px solid #dee2e6;
-}
-
-.pagination .page-item.active .page-link {
-  background: #0d1a38;
-  border-color: #0d1a38;
-  color: #fff;
-}
-
-@media (max-width:768px) {
-  .btn {
-    width: 100%;
-    margin-bottom: .5rem;
+@media (max-width: 768px) {
+  .actions,
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .col-12.d-flex {
-    flex-direction: column;
+  .search-input {
+    max-width: 100%;
   }
 }
 </style>

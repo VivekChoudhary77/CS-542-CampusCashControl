@@ -5,14 +5,24 @@ import DepartmentPage from "@/components/DepartmentPage.vue";
 import UploadPage from "@/components/UploadPage.vue";
 import UserAccessPage from "@/components/UserAccessPage.vue";
 import ReportPage from "@/components/ReportPage.vue";
+import NotFoundPage from "@/components/NotFoundPage.vue";
+import ProtectedLayout from "@/layouts/ProtectedLayout.vue";
+import { uiState } from "@/state/uiState";
 
 const routes = [
   { path: "/", name: "home", component: HomePage },
-  { path: "/dashboard", name: "dashboard", component: Dashboard },
-  { path: '/useraccess', name: 'useraccess', component: UserAccessPage },
-  { path: "/departments", name: "department", component: DepartmentPage },
-  { path: "/upload", name: "upload", component: UploadPage },
-  { path: "/reports", name: "report", component: ReportPage },
+  {
+    path: "/",
+    component: ProtectedLayout,
+    children: [
+      { path: "dashboard", name: "dashboard", component: Dashboard },
+      { path: "useraccess", name: "useraccess", component: UserAccessPage },
+      { path: "departments", name: "department", component: DepartmentPage },
+      { path: "upload", name: "upload", component: UploadPage },
+      { path: "reports", name: "report", component: ReportPage },
+    ],
+  },
+  { path: "/:pathMatch(.*)*", name: "not-found", component: NotFoundPage },
 ];
 
 const router = createRouter({
@@ -20,12 +30,64 @@ const router = createRouter({
   routes,
 });
 
+let routeLoadStartedAt = 0;
+let routeLoaderTimeoutId = null;
+
+function startRouteLoader() {
+  if (routeLoaderTimeoutId !== null) {
+    clearTimeout(routeLoaderTimeoutId);
+    routeLoaderTimeoutId = null;
+  }
+  routeLoadStartedAt = Date.now();
+  uiState.routeLoading = true;
+}
+
+function getAccessToken() {
+  const sessionToken = sessionStorage.getItem("access_token");
+  if (sessionToken) {
+    return sessionToken;
+  }
+
+  // Backward compatibility: migrate legacy localStorage sessions to tab-scoped storage.
+  const legacyToken = localStorage.getItem("access_token");
+  if (legacyToken) {
+    const refresh = localStorage.getItem("refresh_token") || "";
+    sessionStorage.setItem("access_token", legacyToken);
+    if (refresh) {
+      sessionStorage.setItem("refresh_token", refresh);
+    }
+    sessionStorage.setItem("authenticated", "true");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("authenticated");
+    return legacyToken;
+  }
+
+  return "";
+}
+
+function closeRouteLoader() {
+  const elapsed = Date.now() - routeLoadStartedAt;
+  const minVisible = 260;
+  const delay = elapsed < minVisible ? minVisible - elapsed : 0;
+
+  if (routeLoaderTimeoutId !== null) {
+    clearTimeout(routeLoaderTimeoutId);
+  }
+  routeLoaderTimeoutId = setTimeout(() => {
+    uiState.routeLoading = false;
+    routeLoaderTimeoutId = null;
+  }, delay);
+}
+
 // Global navigation guard to enforce authentication rules:
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = !!localStorage.getItem("access_token");
+  startRouteLoader();
+
+  const isAuthenticated = !!getAccessToken();
 
   // Unauthenticated users can only access the home (login) page.
-  if (!isAuthenticated && to.name !== "home") {
+  if (!isAuthenticated && !["home", "not-found"].includes(to.name)) {
     return next({ name: "home" });
   }
 
@@ -36,6 +98,17 @@ router.beforeEach((to, from, next) => {
 
   // Otherwise, allow navigation.
   next();
+});
+
+router.afterEach(() => {
+  closeRouteLoader();
+});
+
+router.onError(() => {
+  closeRouteLoader();
+  if (router.currentRoute.value.name !== "not-found") {
+    router.replace({ name: "not-found" });
+  }
 });
 
 export default router;
