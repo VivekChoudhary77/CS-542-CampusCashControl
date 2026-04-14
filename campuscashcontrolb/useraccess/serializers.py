@@ -5,4 +5,4 @@ class AuthUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         # expose only username
-        fields = ('username')
+        fields = ('username',)
