@@ -8,7 +8,15 @@ function normalizeBaseUrl(url) {
   return (url || "").replace(/\/+$/, "");
 }
 
-export const API_BASE_URL = configuredApiBaseUrl || LOCAL_API_BASE_URL;
+function withApiSuffix(url) {
+  const normalized = normalizeBaseUrl(url);
+  if (!normalized) {
+    return "";
+  }
+  return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
+}
+
+export const API_BASE_URL = withApiSuffix(configuredApiBaseUrl) || LOCAL_API_BASE_URL;
 
 export function apiUrl(path) {
   const normalizedPath = String(path || "").startsWith("/") ? path : `/${path}`;
