@@ -26,15 +26,27 @@ Including another URLconf
 # ]
 
 from django.urls import path, include
-from django.views.generic import RedirectView
 from django.contrib import admin
+from django.conf import settings
+from django.http import JsonResponse
+from django.shortcuts import redirect
+
+
+def health_check(_request):
+    return JsonResponse({"status": "ok", "service": "CampusCashControl API"})
+
+
+def root_route(request):
+    if settings.DEBUG:
+        return redirect("http://localhost:8080/")
+    return health_check(request)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include("accounts.urls")),  # Django API
     path('api/', include('uploads.urls')),
     path('api/', include('useraccess.urls')),
-    path("", RedirectView.as_view(url="http://localhost:8080/", permanent=False)),  # Redirect to Vue
+    path("", root_route),
     path('api/', include('departments.urls')),
     path('api/reports/', include('reports.urls')),
 ]

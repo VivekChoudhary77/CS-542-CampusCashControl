@@ -48,7 +48,7 @@
                 <el-icon><Search /></el-icon>
                 Display Report
               </el-button>
-              <el-button @click="downloadReport" :disabled="!displayedData.length">
+              <el-button :class="['download-btn', { 'is-dark': isDarkMode }]" @click="downloadReport" :disabled="!displayedData.length">
                 <el-icon><Download /></el-icon>
                 Download Report
               </el-button>
@@ -56,7 +56,9 @@
 
             <div v-if="displayedData.length" class="toolbar">
               <el-input v-model="searchQuery" placeholder="Search reports" clearable class="search-input" />
-              <el-tag type="info">{{ filteredReportData.length }} records found</el-tag>
+              <el-tag :class="['records-tag', { 'is-dark': isDarkMode }]" :type="isDarkMode ? 'primary' : 'info'">
+                {{ filteredReportData.length }} records found
+              </el-tag>
             </div>
 
             <el-alert
@@ -193,14 +195,16 @@ export default {
     },
   },
   methods: {
-    displayReport() {
+    displayReport(showLoadingNotice = true) {
       this.hasSearched = true;
       this.tableLoading = true;
-      ElNotification({
-        title: "Loading",
-        message: "Fetching report data...",
-        type: "info",
-      });
+      if (showLoadingNotice) {
+        ElNotification({
+          title: "Loading",
+          message: "Fetching report data...",
+          type: "info",
+        });
+      }
       axios
         .get(apiUrl("/reports/"), { params: this.filters })
         .then(({ data }) => {
@@ -255,9 +259,11 @@ export default {
       .get(apiUrl("/departments/active/"))
       .then(({ data }) => {
         this.departments = data.map((d) => d.name);
+        this.displayReport(false);
       })
       .catch((err) => {
         console.error("Could not load departments:", err);
+        this.displayReport(false);
       })
       .finally(() => {
         this.pageLoading = false;
@@ -322,6 +328,24 @@ export default {
   color: #e7eefc;
 }
 
+.report-page-wrap.is-dark .download-btn {
+  border-color: rgba(166, 188, 216, 0.3);
+  color: #dce7f7;
+  background: rgba(10, 14, 22, 0.74);
+}
+
+.report-page-wrap.is-dark .download-btn:hover {
+  border-color: rgba(196, 212, 233, 0.45);
+  color: #eef4ff;
+  background: rgba(20, 29, 44, 0.84);
+}
+
+.report-page-wrap.is-dark .records-tag {
+  background: rgba(39, 63, 92, 0.62);
+  border-color: rgba(166, 188, 216, 0.3);
+  color: #e8f0ff;
+}
+
 .full-width {
   width: 100%;
 }
@@ -357,6 +381,15 @@ export default {
 
 .report-table-wrap {
   min-height: 220px;
+}
+
+.report-table :deep(.el-table) {
+  --el-table-row-hover-bg-color: transparent;
+}
+
+.report-table :deep(.el-table__body tr:hover > td.el-table__cell),
+.report-table :deep(.el-table__body tr.hover-row > td.el-table__cell) {
+  background-color: inherit !important;
 }
 
 .pagination-wrap {
